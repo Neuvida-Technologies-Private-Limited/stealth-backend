@@ -1,0 +1,8 @@
+# adding .env to git as it does not contain sensetive information
+# boilerplate env
+
+APP_ENV=dev
+APP_NAME=django_boilerplate
+DEBUG=0
+SECRET_KEY=dev-h-hYhgdf!c!w&b-w4!33$8z4*4l1tr7jh_&dgfux6ldjezh
+AUTH_APPLICATION_NAME=django_boilerplate
