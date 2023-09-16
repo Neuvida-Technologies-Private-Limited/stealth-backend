@@ -9,3 +9,5 @@ social-auth-app-django
 djangorestframework==3.13.1
 markdown
 django-filter
+ipython
+djangorestframework_simplejwt

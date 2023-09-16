@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 
 # CONFIG_DIR points to config package (project/src/apps/config)
 CONFIG_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,6 +35,7 @@ THIRD_PARTY_APPS = [
 ]
 USER_DEFINED_APPS = [
     'apps.core',
+    'apps.access',
     'apps.keymanagement',
     'apps.library',
     'apps.prompt',
@@ -40,9 +43,6 @@ USER_DEFINED_APPS = [
 ]
 INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + USER_DEFINED_APPS
 
-AUTHENTICATION_BACKENDS = (
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -54,19 +54,32 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),  # Access token lifetime (2 hours)
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Token refresh lifetime (1 day)
+    'SLIDING_TOKEN_LIFETIME': timedelta(hours=2),  # Sliding token lifetime (2 hours)
+    'SLIDING_TOKEN_REFRESH_LIFETIME_GRACE_PERIOD': timedelta(minutes=15),  # Grace period for token refresh (15 minutes)
+    'ROTATE_REFRESH_TOKENS': False,  # Rotate refresh tokens (False by default)
+    'ALGORITHM': 'HS256',  # Token signing algorithm
+    'SIGNING_KEY': "this is my secret key",  # Secret key for token signing
+}
+
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.%fZ",
     "UNICODE_JSON": False,
-    "DEFAULT_RENDERER_CLASS": ("rest_framework.renderers.JSONRenderer",)
+    "DEFAULT_RENDERER_CLASS": ("rest_framework.renderers.JSONRenderer",),
 }
 
 BUILT_IN_MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -75,6 +88,7 @@ USER_DEFINED_MIDDLEWARE = []
 MIDDLEWARE = BUILT_IN_MIDDLEWARE + THIRD_PARTY_MIDDLEWARE + USER_DEFINED_MIDDLEWARE
 
 AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

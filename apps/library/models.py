@@ -10,7 +10,8 @@ class LikeDislike(Base, Ownable):
     liked = models.BooleanField(default=True)  # True for like, False for dislike
 
     def __str__(self):
-        return f"{'Liked' if self.liked else 'Disliked'}: {self.user}"
+        status = 'Liked' if self.liked else 'Disliked'
+        return f"{status}: {self.user}"
 
     class Meta:
         # Add a unique constraint to ensure one like or dislike per user per prompt

@@ -18,8 +18,6 @@ COPY . /app
 
 COPY ./entrypoint.sh /
 
-RUN ls
-
 ENTRYPOINT [ "sh", "entrypoint.sh"]
 
 EXPOSE 8000
