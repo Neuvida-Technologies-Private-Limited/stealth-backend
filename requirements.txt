@@ -4,3 +4,8 @@ django-debug-toolbar==2.2
 pre-commit==1.18.3
 django-tagging==0.5.0
 six==1.13.0
+django-allauth
+social-auth-app-django
+djangorestframework==3.13.1
+markdown
+django-filter
