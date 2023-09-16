@@ -3,27 +3,14 @@ version: "3.8"
 services:
   nginx:
     build: ./nginx
+    volumes:
+      - static:/static
     image: nginx
     container_name: "yamak.nginx"
     ports:
       - 80:80
     depends_on:
       - webserver
-
-  webserver:
-    image: yamak
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: yamak.webserver
-    ports: 
-      - 8001:8001      
-    command: python manage.py runserver 0.0.0.0:8001
-    env_file:
-      - ./env
-      - ./mysql.env
-    depends_on:
-      - mysql
 
   mysql:
     image: mysql
@@ -39,3 +26,26 @@ services:
       - 3306:3306
     volumes:
       - ./data/mysql/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  webserver:
+    image: yamak
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yamak.webserver
+    ports:
+      - 8000:8000
+    volumes:
+      - static:/static
+    # command:  python manage.py runserver 0.0.0.0:8000 #gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    env_file:
+      - ./env
+    depends_on:
+      - mysql
+
+volumes:
+  static:
