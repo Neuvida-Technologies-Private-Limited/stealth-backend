@@ -1,7 +1,7 @@
 from .base import *
-
+import env
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG = env.DEBUG #os.getenv('DEBUG')
 
 if DEBUG:
     # configuration for django debug toolbar
@@ -18,12 +18,12 @@ else:
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = '_sb7l*jg2bhk=bp1hfas2q45#iv6ph_u^@dc%*jz&89(q%*!6(fzn'
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = env.SECRET_KEY
 
 # Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(ASSETS_MEDIA_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR,  'db.sqlite3'),
     }
 }

@@ -42,13 +42,7 @@ class AbstractBase(models.Model):
 
     # Override delete method.
     def delete(self, **kwargs):  # pylint: disable=W0221
-        self._forced_delete = kwargs.pop("forced", False)
-        if not self._forced_delete:
-            model = self.__class__
-            kwargs.update({"trashed": True})
-            model.objects.using(self._db).filter(pk=self.id).update(**kwargs)
-        else:
-            super(AbstractBase, self).delete(**kwargs)
+        super(AbstractBase, self).delete(**kwargs)
 
     # Define hide method.
     def hide(self, **kwargs):

@@ -1,6 +1,6 @@
 import os
 from datetime import timedelta
-
+import env
 
 # CONFIG_DIR points to config package (project/src/apps/config)
 CONFIG_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,14 +31,14 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'debug_toolbar',
-    'tagging'
+    'tagging',
+    'cryptography',
 ]
 USER_DEFINED_APPS = [
     'apps.core',
     'apps.access',
     'apps.keymanagement',
     'apps.library',
-    'apps.prompt',
     'apps.workspace',
 ]
 INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + USER_DEFINED_APPS
@@ -56,10 +56,10 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),  # Access token lifetime (2 hours)
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Token refresh lifetime (1 day)
-    'SLIDING_TOKEN_LIFETIME': timedelta(hours=2),  # Sliding token lifetime (2 hours)
-    'SLIDING_TOKEN_REFRESH_LIFETIME_GRACE_PERIOD': timedelta(minutes=15),  # Grace period for token refresh (15 minutes)
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=env.JWT_TOKEN_LIFE),  # Access token lifetime (2 hours)
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=env.JWT_SLIDING_REFRESH_LIFETIME),  # Token refresh lifetime (1 day)
+    'SLIDING_TOKEN_LIFETIME': timedelta(hours=env.JWT_SLIDING_LIFETIME),  # Sliding token lifetime (2 hours)
+    'SLIDING_TOKEN_REFRESH_LIFETIME_GRACE_PERIOD': timedelta(minutes=env.JWT_GRACE),  # Grace period for token refresh (15 minutes)
     'ROTATE_REFRESH_TOKENS': False,  # Rotate refresh tokens (False by default)
     'ALGORITHM': 'HS256',  # Token signing algorithm
     'SIGNING_KEY': "this is my secret key",  # Secret key for token signing
@@ -79,7 +79,7 @@ BUILT_IN_MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -153,3 +153,18 @@ STATIC_ROOT = os.path.join(ASSETS_MEDIA_DIR, 'assets')  # project/assets
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(ASSETS_MEDIA_DIR, 'media')  # project/media
+
+
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # SMTP server for Gmail
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env.EMAIL  # Your Gmail email address
+EMAIL_HOST_PASSWORD = env.EMAIL_PASSWORD  # Your Gmail email password or an app password
+
+
+ACCOUNT_EMAIL_REQUIRED = True  # Make sure it's not set to False
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+CSRF_COOKIE_HTTPONLY = False
