@@ -20,6 +20,7 @@ login_view = TokenObtainPairView.as_view()
 # Use TokenRefreshView for token refresh
 custom_token_refresh_view = TokenRefreshView.as_view()
 
+
 class CurrentUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -41,21 +42,31 @@ class SignupAPIView(APIView):
             user.save()
 
             # Create an EmailAddress object and associate it with the user
-            email_address, _ = EmailAddress.objects.get_or_create(user=user, email=user.email)
-            email_address.primary=True
-            email_address.verified=False
+            email_address, _ = EmailAddress.objects.get_or_create(
+                user=user, email=user.email
+            )
+            email_address.primary = True
+            email_address.verified = False
             email_address.save()
 
             # TODO: Send an email confirmation email to the user
 
-            return Response({'message': 'User registered successfully. Check your email for activation instructions.'}, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "message": "User registered successfully. Check your email for activation instructions."
+                },
+                status=status.HTTP_201_CREATED,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def email_user(user):
     # Send a confirmation email to the user
-    subject = 'Welcome to Your Site - Email Confirmation'
-    message = 'Thank you for registering on Your Site. Please click the link below to confirm your email address:\n\n'
-    message += f'http://your-site.com/confirm/{user.id}/'  # Replace with your confirmation URL
+    subject = "Welcome to Your Site - Email Confirmation"
+    message = "Thank you for registering on Your Site. Please click the link below to confirm your email address:\n\n"
+    message += (
+        f"http://your-site.com/confirm/{user.id}/"  # Replace with your confirmation URL
+    )
 
     from_email = settings.EMAIL_HOST_USER  # Use the configured email address
     recipient_list = [user.email]

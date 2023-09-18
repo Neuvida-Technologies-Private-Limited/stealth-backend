@@ -6,20 +6,35 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('keymanagement', '0001_initial'),
+        ("keymanagement", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Workspace',
+            name="Workspace",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('title', models.CharField(max_length=255)),
-                ('model_key', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='workspaces', to='keymanagement.KeyManagement')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("title", models.CharField(max_length=255)),
+                (
+                    "model_key",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="workspaces",
+                        to="keymanagement.KeyManagement",
+                    ),
+                ),
             ],
         ),
     ]

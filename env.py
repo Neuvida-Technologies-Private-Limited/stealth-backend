@@ -1,7 +1,7 @@
 from decouple import config
 
-SECRET_KEY = config('SECRET_KEY')
-DEBUG = config('DEBUG', cast=bool)
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", cast=bool)
 JWT_TOKEN_LIFE = config("JWT_TOKEN_LIFE", cast=int)
 JWT_SLIDING_REFRESH_LIFETIME = config("JWT_SLIDING_REFRESH_LIFETIME", cast=int)
 JWT_SLIDING_LIFETIME = config("JWT_SLIDING_LIFETIME", cast=int)

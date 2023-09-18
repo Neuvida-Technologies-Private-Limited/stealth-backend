@@ -8,8 +8,8 @@ from .models import Workspace
 from .serializers import WorkspaceSerializer
 from django.contrib.auth.models import User
 
-class WorkspaceAPIView(APIView):
 
+class WorkspaceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -17,6 +17,7 @@ class WorkspaceAPIView(APIView):
         workspaces = Workspace.objects.filter(user=request.user)
         serializer = WorkspaceSerializer(workspaces, many=True)
         return Response(serializer.data)
+
     def post(self, request):
         # Create a new workspace
         data = request.data
@@ -26,6 +27,7 @@ class WorkspaceAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class WorkspaceDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]

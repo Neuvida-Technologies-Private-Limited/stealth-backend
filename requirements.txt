@@ -12,3 +12,7 @@ django-filter
 ipython
 djangorestframework_simplejwt
 python-decouple
+requests
+django-extensions
+pylint
+black

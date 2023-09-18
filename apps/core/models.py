@@ -8,6 +8,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+
 class AbstractBase(models.Model):
     """
     Abstract model for all base models of different databases.
@@ -79,7 +80,6 @@ class AbstractBase(models.Model):
         return self
 
 
-
 class Base(AbstractBase):
     """
     Abstract model for master database models.
@@ -108,6 +108,7 @@ class Base(AbstractBase):
         except Exception:
             pass
         return ContentType.objects.get_for_model(cls)
+
 
 class Ownable(models.Model):
     """

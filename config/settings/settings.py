@@ -1,17 +1,18 @@
 from .base import *
 import env
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.DEBUG #os.getenv('DEBUG')
+DEBUG = env.DEBUG  # os.getenv('DEBUG')
 
 if DEBUG:
     # configuration for django debug toolbar
     INTERNAL_IPS = [
-        '127.0.0.1',
+        "127.0.0.1",
     ]
     MIDDLEWARE += [
-        'debug_toolbar.middleware.DebugToolbarMiddleware'  # django debug toolbar middleware
+        "debug_toolbar.middleware.DebugToolbarMiddleware"  # django debug toolbar middleware
     ]
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ["*"]
 else:
     ALLOWED_HOSTS = []
 
@@ -22,8 +23,8 @@ SECRET_KEY = env.SECRET_KEY
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR,  'db.sqlite3'),
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
