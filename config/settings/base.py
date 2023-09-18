@@ -44,6 +44,7 @@ USER_DEFINED_APPS = [
 ]
 INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + USER_DEFINED_APPS
 
+AUTH_USER_MODEL = 'access.User'
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -99,6 +100,7 @@ MIDDLEWARE = BUILT_IN_MIDDLEWARE + THIRD_PARTY_MIDDLEWARE + USER_DEFINED_MIDDLEW
 AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",
+    "apps.access.backends.EmailBackend",
 ]
 
 ROOT_URLCONF = "config.urls"

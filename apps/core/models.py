@@ -3,7 +3,7 @@ import datetime
 
 import six
 
-from django.contrib.auth.models import User
+from apps.access.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models

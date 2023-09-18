@@ -1,5 +1,3 @@
-from django.contrib.auth.models import User
-import datetime
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView
 from rest_framework.response import Response
