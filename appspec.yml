@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /stealth-backend
+    destination: /home/ec2-user/stealth-backend
 
 hooks:
   ApplicationStop:
