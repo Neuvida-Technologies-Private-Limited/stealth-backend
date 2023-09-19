@@ -16,3 +16,4 @@ requests
 django-extensions
 pylint
 black
+mysqlclient

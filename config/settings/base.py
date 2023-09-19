@@ -163,17 +163,25 @@ STATIC_ROOT = os.path.join(ASSETS_MEDIA_DIR, "assets")  # project/assets
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(ASSETS_MEDIA_DIR, "media")  # project/media
 
+# AWS_ACCESS_KEY_ID = 'AKIATEXXWBFHXEAFFKVL'
+
 
 # settings.py
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"  # SMTP server for Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'email-smtp.ap-south-1.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env.EMAIL  # Your Gmail email address
-EMAIL_HOST_PASSWORD = env.EMAIL_PASSWORD  # Your Gmail email password or an app password
+EMAIL_HOST_USER = 'AKIATEXXWBFHX26YFX4J'  # Your SES SMTP username.
+EMAIL_HOST_PASSWORD = 'BJqRlK8bs/tYc2PgA3XsQJyUrBkah9zc5E86+f5cLMQd'  # Your SES SMTP password.
+EMAIL_HOST_USER_EMAIL = 'support@yamak.ai' # If don't need, comment out!!
+
 
 
 ACCOUNT_EMAIL_REQUIRED = True  # Make sure it's not set to False
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 CSRF_COOKIE_HTTPONLY = False
+
+
+BASE_LOCAL_URL = "http://127.0.0.1:8000"
+
