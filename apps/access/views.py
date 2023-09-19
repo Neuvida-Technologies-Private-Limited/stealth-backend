@@ -1,18 +1,19 @@
-from django.http import Http404
-from django.conf import settings
-from django.urls import reverse
-
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import UserSerializer
-from .models import User
-from .utils import email_user
-from allauth.account.models import EmailAddress
 import secrets
 
+from allauth.account.models import EmailAddress
+from django.conf import settings
+from django.http import Http404
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
+
+from .models import User
+from .serializers import UserSerializer
+from .utils import email_user
 
 # Use TokenObtainPairView for token generation (login)
 login_view = TokenObtainPairView.as_view()

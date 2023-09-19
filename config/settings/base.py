@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+
 import env
 
 # CONFIG_DIR points to config package (project/src/apps/config)
@@ -100,7 +101,7 @@ MIDDLEWARE = BUILT_IN_MIDDLEWARE + THIRD_PARTY_MIDDLEWARE + USER_DEFINED_MIDDLEW
 AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
     "django.contrib.auth.backends.ModelBackend",
-    "apps.access.backends.EmailBackend",
+    "apps.access.utils.EmailBackend",
 ]
 
 ROOT_URLCONF = "config.urls"

@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import include, path
 
 urlpatterns = [
     path("", include("apps.core.urls")),  # entry point to other project app urls

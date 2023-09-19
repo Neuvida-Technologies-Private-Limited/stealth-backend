@@ -1,4 +1,5 @@
 import decouple
+
 SECRET_KEY=decouple.config("SECRET_KEY")
 DEBUG=decouple.config("DEBUG",cast=bool)
 JWT_TOKEN_LIFE=decouple.config("JWT_TOKEN_LIFE",cast=int)

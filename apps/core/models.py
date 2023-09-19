@@ -1,12 +1,13 @@
 from __future__ import absolute_import
+
 import datetime
 
 import six
-
-from apps.access.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+
+from apps.access.models import User
 
 
 class AbstractBase(models.Model):

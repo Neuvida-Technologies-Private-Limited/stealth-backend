@@ -1,9 +1,10 @@
-from enum import Enum
 import uuid
+from enum import Enum
 
 from django.db import models
-from apps.access.models import User
 from fernet_fields import EncryptedTextField
+
+from apps.access.models import User
 
 
 class LLMProviders(Enum):

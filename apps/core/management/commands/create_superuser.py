@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+
 from apps.access.models import User as USER
+
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
