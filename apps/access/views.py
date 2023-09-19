@@ -1,3 +1,7 @@
+from django.http import Http404
+from django.conf import settings
+from django.urls import reverse
+
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -48,13 +52,20 @@ class SignupAPIView(APIView):
             # Convert the byte token to a hex string
             hex_token = secrets.token_hex(16)
 
-            # TODO: Send an email confirmation email to the user
-            success_code = email_user(user, hex_token)
+            url = reverse("verify-email-view", kwargs={"uuid": user.uuid, "token": hex_token})
+
+            # Send an email confirmation email to the user
+            subject = "Welcome to Yamak"
+            message = "Thank you for registering on Your Site. Please click the link below to confirm your email address:\n\n"
+            message += (
+                f"{settings.BASE_LOCAL_URL}{url}"  # Replace with your confirmation URL
+            )
+            success_code = email_user(subject, message)
 
             if success_code != 1:
                 return Response(
                     {
-                        "message": "This email is not valid, please provide valid email"
+                        "message": "This email is not valid."
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -64,7 +75,7 @@ class SignupAPIView(APIView):
 
             return Response(
                 {
-                    "message": "User registered successfully. Check your email for activation instructions."
+                    "message": "User registered successfully."
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -92,3 +103,94 @@ class VerifyEmailView(APIView):
         email_address.save()
         return Response({"message": "Your email has been verified"}, status=status.HTTP_200_OK)
 
+
+class ResetPasswordMail(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email", "")
+        user = None
+        try:
+            user = User.objects.get(email=email)
+        except:
+            raise Http404
+
+        hex_token = secrets.token_hex(16)
+        url = reverse("reset-password",  kwargs={"uuid": user.uuid, "reset_token": hex_token})
+        # Send a password reset link to the user
+        subject = "Reset Password"
+        message = "Please click the link below to reset your password:\n\n"
+        message += (
+            f"{settings.BASE_LOCAL_URL}{url}"  # Replace with your confirmation URL
+        )
+        success_code = email_user(subject, message)
+        if success_code != 1:
+            return Response(
+                {
+                    "message": "This email is not valid."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            user.reset_password_token = hex_token
+            user.save()
+
+        return Response(
+            {
+                "message": "Email sent successfully."
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+class ResetPassword(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uuid, reset_password_token):
+        user = User.objects.filter(uuid=uuid).first()
+        if not user:
+            return Response(
+                {
+                    "message": "User not found."
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if user.reset_password_token != reset_password_token:
+            return Response(
+                {
+                    "message": "Token is not valid."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return Response(
+            {
+                "message": "Provide new passowrd"
+            },
+            status=status.HTTP_200_OK,
+        )
+    
+    def post(self, request, uuid, reset_password_token):
+        user = User.objects.filter(uuid=uuid).first()
+        if not user:
+            return Response(
+                {
+                    "message": "User not found."
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if user.reset_password_token != reset_password_token:
+            return Response(
+                {
+                    "message": "Token is not valid."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        password = request.data.get("password", "")
+        user.set_password(password)
+        user.reset_password_token = ""
+        user.save()
+        return Response(
+            {
+                "message": "Password changed."
+            },
+            status=status.HTTP_201_CREATED,
+        )

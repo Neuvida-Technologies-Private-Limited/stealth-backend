@@ -17,3 +17,4 @@ django-extensions
 pylint
 black
 mysqlclient
+django-fernet-fields
