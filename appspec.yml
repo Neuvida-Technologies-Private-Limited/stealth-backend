@@ -9,5 +9,9 @@ hooks:
     - locaton: scripts/appstop.sh
       timeout: 300
       runas: root
+      
   ApplicationStart:
    -  location: scripts/appstart.sh
+      timeout: 300
+      runas: root
+      
