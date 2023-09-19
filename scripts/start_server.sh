@@ -1,2 +1,2 @@
-cd stealth-backend
-docker-compose up
+cd /home/ec2-user/stealth-backend
+docker-compose up --build -d
