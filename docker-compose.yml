@@ -16,12 +16,7 @@ services:
     image: mysql
     container_name: "yamak.mysql"
     environment:
-      - MYSQL_DATABASE=yamak
-      - MYSQL_USER=yamak_local
-      - MYSQL_ROOT_PASSWORD=Passwor@123
-      - MYSQL_PASSWORD=Passwor@123
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
+      - PYTHON_ENV_FILE=./env.py
     ports:
       - 3306:3306
     volumes:
