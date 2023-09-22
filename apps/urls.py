@@ -5,4 +5,5 @@ urlpatterns = [
     path("", include("apps.workspace.urls")),
     path("", include("apps.access.urls")),
     path("", include("apps.keymanagement.urls")),
+    path("", include("apps.library.urls")),
 ]

@@ -5,11 +5,12 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.db import transaction
+from apps.library.services import LLMServiceFactory
 from .models import Workspace
 from .serializers import WorkspaceSerializer
-
-
+from apps.library.serializers import GenerateOutputSerializer, PromptHistoryListSerializer
+from apps.library.models import Model, Parameter, ParameterMapping, Prompt
 class WorkspaceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -64,11 +65,48 @@ class WorkspaceDetailAPIView(APIView):
 class WorkspaceOutputView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def post(self, request):
-        pass
+        data = request.data
+        parameters = data.pop("parameters", {})
+        workspace_uuid = data.get('workspace', '')
+        
+        try:
+            workspace = Workspace.objects.get(id=workspace_uuid)
+        except Workspace.DoesNotExist:
+            return Response({"message": "Workspace not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = GenerateOutputSerializer(data=data)
+        if serializer.is_valid():
+            serializer.validated_data['workspace'] = workspace
+            try:
+                prompt = serializer.save()
+                for param, value in parameters.items():
+                    llm_model, _ = Model.objects.get_or_create(name=prompt.workspace.model_key.title)
+                    parameter, _ = Parameter.objects.get_or_create(name=param)
+                    ParameterMapping.objects.create(prompt=prompt, model=llm_model, parameter=parameter, value=value)
+                provider = LLMServiceFactory.create_llm_service(prompt)
+                # Call the OpenAIProvider service here
+                provider.run()
+                return Response({"message": prompt.sample_output}, status=status.HTTP_201_CREATED)
+            except Exception as _:
+                # Handle exceptions raised by the service
+                # Rollback the database transaction
+                transaction.set_rollback(True)
+                return Response({"message": "Error generating prompt"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SearchWorkspaceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         pass
+
+class WorkspacePromptListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, uuid):
+        # Retrieve all prompts associated with the given workspace
+        prompts = Prompt.objects.filter(workspace_id=uuid).order_by("timestamp")
+        serializer = PromptHistoryListSerializer(prompts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

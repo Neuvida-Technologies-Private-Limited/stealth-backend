@@ -30,4 +30,9 @@ urlpatterns = [
         views.CurrentUserAPIView.as_view(),
         name="current-user",
     ),
+    url(
+        r"api/v1/access/csrf-token/",
+        views.get_csrf_token,
+        name="get_csrf_token"
+    ),
 ]

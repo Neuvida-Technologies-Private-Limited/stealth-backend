@@ -18,3 +18,5 @@ pylint
 black
 mysqlclient
 django-fernet-fields
+openai
+django-cors-headers

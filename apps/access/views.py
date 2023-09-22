@@ -10,6 +10,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 from .models import User
 from .serializers import UserSerializer
@@ -195,3 +199,8 @@ class ResetPassword(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+@csrf_exempt
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})

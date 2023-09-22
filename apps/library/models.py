@@ -7,7 +7,7 @@ from tagging.registry import register
 
 from apps.core.models import Base, Ownable
 from apps.workspace.models import Workspace
-
+from apps.keymanagement.models import LLMProviders
 
 class ParameterEnum(Enum):
     TEMPERATURE = "temperature"
@@ -17,11 +17,6 @@ class ParameterEnum(Enum):
     FREQUENCY_PENALTY = "frequency_penalty"
     PRESENCE_PENALTY = "presence_penalty"
     LOGIT_BIAS = "logit_bias"
-
-
-class ModelEnum(Enum):
-    OPENAI = "Open AI"
-    BARD = "Bard"
 
 
 class Parameter(Base):
@@ -41,7 +36,7 @@ class Model(Base):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(
         max_length=255,
-        choices=[(choice.value, choice.name) for choice in ModelEnum],
+        choices=[(choice.value, choice.name) for choice in LLMProviders],
         unique=True,
     )
 
@@ -50,11 +45,12 @@ class Model(Base):
 
 
 class PromptTypeEnum(Enum):
-    CHAT = "CHAT"
+    CHAT = "Chat"
     COMPLETION = "Completion"
 
 
 class Prompt(Base):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     title = models.CharField(max_length=255)  # Title of the prompt
     system_message = models.TextField()  # System-generated message
     user_message = models.TextField()  # User input message
@@ -65,7 +61,6 @@ class Prompt(Base):
     prompt_type = models.CharField(
         max_length=255,
         choices=[(choice.value, choice.name) for choice in PromptTypeEnum],
-        unique=True,
     )
 
     workspace = models.ForeignKey(
@@ -106,6 +101,7 @@ class ParameterMapping(Base):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     prompt = models.ForeignKey(Prompt, on_delete=models.SET_NULL, null=True)
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True)
+    parameter = models.ForeignKey(Parameter, on_delete=models.SET_NULL, null=True)
     value = models.CharField(max_length=256)
 
     def __str__(self):
@@ -116,3 +112,4 @@ class PromptOutput(Base):
     output = models.TextField()
     def __str__(self):
         return f"output - {self.prompt}"
+ 

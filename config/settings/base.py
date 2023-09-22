@@ -35,6 +35,7 @@ THIRD_PARTY_APPS = [
     "tagging",
     "cryptography",
     "django_extensions",
+    "corsheaders",
 ]
 USER_DEFINED_APPS = [
     "apps.core",
@@ -89,8 +90,10 @@ BUILT_IN_MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -173,8 +176,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'email-smtp.ap-south-1.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'AKIATEXXWBFHX26YFX4J'  # Your SES SMTP username.
-EMAIL_HOST_PASSWORD = 'BJqRlK8bs/tYc2PgA3XsQJyUrBkah9zc5E86+f5cLMQd'  # Your SES SMTP password.
+EMAIL_HOST_USER = env.EMAIL_HOST_USER  # Your SES SMTP username.
+EMAIL_HOST_PASSWORD = env.EMAIL_HOST_PASSWORD  # Your SES SMTP password.
 EMAIL_HOST_USER_EMAIL = 'support@yamak.ai' # If don't need, comment out!!
 
 
@@ -187,3 +190,9 @@ CSRF_COOKIE_HTTPONLY = False
 BASE_LOCAL_URL = "http://127.0.0.1:8000"
 
 FERNET_KEYS = [env.FERNET_KEY]
+
+# Allow requests from any origin during development (not for production)
+CORS_ALLOW_ALL_ORIGINS = env.CORS_ALLOW_ALL_ORIGINS
+
+# Optional: Allow cookies to be included in the CORS request (if needed)
+CORS_ALLOW_CREDENTIALS = env.CORS_ALLOW_CREDENTIALS
