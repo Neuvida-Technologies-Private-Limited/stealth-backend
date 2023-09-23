@@ -81,16 +81,17 @@ class WorkspaceOutputView(APIView):
             try:
                 prompt = serializer.save()
                 for param, value in parameters.items():
-                    llm_model, _ = Model.objects.get_or_create(name=prompt.workspace.model_key.title)
+                    llm_model, _ = Model.objects.get_or_create(name=prompt.workspace.model_key.provider)
                     parameter, _ = Parameter.objects.get_or_create(name=param)
                     ParameterMapping.objects.create(prompt=prompt, model=llm_model, parameter=parameter, value=value)
                 provider = LLMServiceFactory.create_llm_service(prompt)
                 # Call the OpenAIProvider service here
                 provider.run()
-                return Response({"message": prompt.sample_output}, status=status.HTTP_201_CREATED)
-            except Exception as _:
+                return Response({"message": prompt.prompt_output.last().output}, status=status.HTTP_201_CREATED)
+            except Exception as e:
                 # Handle exceptions raised by the service
                 # Rollback the database transaction
+                print("Exception is", e)
                 transaction.set_rollback(True)
                 return Response({"message": "Error generating prompt"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

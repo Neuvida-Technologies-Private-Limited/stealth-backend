@@ -4,7 +4,7 @@ import openai
 
 from typing import Union
 from apps.keymanagement.models import LLMProviders
-from apps.library.models import PromptTypeEnum, Prompt
+from apps.library.models import PromptTypeEnum, Prompt, PromptOutput
 
 class LLMService:
 
@@ -188,7 +188,7 @@ class BardProvider(LLMService):
 class LLMServiceFactory:
     @staticmethod
     def create_llm_service(prompt) -> Union[OpenAIProvider, BardProvider]:
-        provider_type = prompt.workspace.model_key.title
+        provider_type = prompt.workspace.model_key.provider
         print("provider type is", provider_type)
         if provider_type == LLMProviders.OPENAI.value:
             return OpenAIProvider(prompt)

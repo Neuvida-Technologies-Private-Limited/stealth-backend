@@ -108,7 +108,7 @@ class ParameterMapping(Base):
         return f"{self.parameter} - {self.model}"
     
 class PromptOutput(Base):
-    prompt = models.ForeignKey(Prompt, on_delete=models.SET_NULL, null=True)
+    prompt = models.ForeignKey(Prompt, on_delete=models.SET_NULL, null=True, related_name="prompt_output")
     output = models.TextField()
     def __str__(self):
         return f"output - {self.prompt}"
