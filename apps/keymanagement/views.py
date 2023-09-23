@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import KeyManagement
+from .models import KeyManagement, LLMProviders
 from .serializers import KeyManagementSerializer
 
 
@@ -57,3 +57,10 @@ class KeyManagementDetailAPIView(APIView):
         key = self.get_object(uuid)
         key.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class KeyManagementProvidersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        provider_values = [provider.value for provider in LLMProviders]
+        return Response(data=provider_values, status=status.HTTP_200_OK)

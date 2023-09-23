@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import KeyManagementAPIView, KeyManagementDetailAPIView
+from .views import KeyManagementAPIView, KeyManagementDetailAPIView, KeyManagementProvidersView
 
 urlpatterns = [
     url(
@@ -11,6 +11,11 @@ urlpatterns = [
     url(
         r"^api/v1/key/create_key/$",
         KeyManagementAPIView.as_view(),
+        name="keymanagement-create",
+    ),
+    url(
+        r"^api/v1/key/llm-providers/$",
+        KeyManagementProvidersView.as_view(),
         name="keymanagement-create",
     ),
     url(
