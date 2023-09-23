@@ -3,7 +3,7 @@ from django.conf.urls import include, url
 from . import views
 
 urlpatterns = [
-    url(r"^api/v1/access/login/$", views.login_view, name="login-view"),
+    url(r"^api/v1/access/login/$", views.CustomTokenObtainPairView.as_view(), name="login-view"),
     url(r"^api/v1/access/signup/$", views.SignupAPIView.as_view(), name="signup-view"),
     url(
         r"^api/v1/access/refresh/$",

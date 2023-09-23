@@ -20,8 +20,19 @@ from .serializers import UserSerializer
 from .utils import email_user
 
 # Use TokenObtainPairView for token generation (login)
-login_view = TokenObtainPairView.as_view()
-
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        
+        # Customize the response format
+        data = {
+            'data': {
+                'access_token': response.data['access'],
+                'refresh_token': response.data['refresh'],
+            }
+        }
+        
+        return Response(data)
 # Use TokenRefreshView for token refresh
 custom_token_refresh_view = TokenRefreshView.as_view()
 
@@ -32,7 +43,7 @@ class CurrentUserAPIView(APIView):
     def get(self, request, format=None):
         user = request.user  # Get the authenticated user
         serializer = UserSerializer(user)  # Serialize user data
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"data": serializer.data, "status_code": status.HTTP_200_OK}, status=status.HTTP_200_OK)
 
 
 class SignupAPIView(APIView):
@@ -84,7 +95,7 @@ class SignupAPIView(APIView):
                 },
                 status=status.HTTP_201_CREATED,
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST})
 
 
 class VerifyEmailView(APIView):

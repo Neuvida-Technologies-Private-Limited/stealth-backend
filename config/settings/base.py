@@ -83,7 +83,7 @@ REST_FRAMEWORK = {
     ),
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.%fZ",
     "UNICODE_JSON": False,
-    "DEFAULT_RENDERER_CLASS": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_RENDERER_CLASSES": ("apps.core.utils.CustomJSONRenderer",),
 }
 
 BUILT_IN_MIDDLEWARE = [
