@@ -18,7 +18,6 @@ class KeyManagement(models.Model):
     provider = models.CharField(
         max_length=64,
         choices=[(choice.value, choice.name) for choice in LLMProviders],
-        default=LLMProviders.OPENAI.value,
     )
     title = models.TextField(default="")
     description = models.TextField(default="")
