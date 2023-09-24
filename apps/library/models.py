@@ -71,6 +71,13 @@ class Prompt(Base):
         null=True,
     )
 
+    def tag_exists(self, value):
+        all_tags = self.tags.values_list("name", flat=True)
+        for tag in all_tags:
+            if value.lower() in tag.lower():
+                return True
+        return False
+
     def __str__(self):
         return self.title
 
@@ -99,7 +106,7 @@ class LikeDislikePrompt(Base, Ownable):
 
 class ParameterMapping(Base):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    prompt = models.ForeignKey(Prompt, on_delete=models.SET_NULL, null=True)
+    prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE, null=True)
     model = models.ForeignKey(Model, on_delete=models.SET_NULL, null=True)
     parameter = models.ForeignKey(Parameter, on_delete=models.SET_NULL, null=True)
     value = models.CharField(max_length=256)
@@ -108,7 +115,7 @@ class ParameterMapping(Base):
         return f"{self.parameter} - {self.model}"
     
 class PromptOutput(Base):
-    prompt = models.ForeignKey(Prompt, on_delete=models.SET_NULL, null=True, related_name="prompt_output")
+    prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE, null=True, related_name="prompt_output")
     output = models.TextField()
     def __str__(self):
         return f"output - {self.prompt}"

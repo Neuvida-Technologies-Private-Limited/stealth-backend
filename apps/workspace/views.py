@@ -1,16 +1,18 @@
-from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics
 from django.db import transaction
 from apps.library.services import LLMServiceFactory
 from .models import Workspace
 from .serializers import WorkspaceSerializer
 from apps.library.serializers import GenerateOutputSerializer, PromptHistoryListSerializer
 from apps.library.models import Model, Parameter, ParameterMapping, Prompt
+
 class WorkspaceAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -70,9 +72,9 @@ class WorkspaceOutputView(APIView):
         data = request.data
         parameters = data.pop("parameters", {})
         workspace_uuid = data.get('workspace', '')
-        
+        tags = data.pop("tags", "")
         try:
-            workspace = Workspace.objects.get(id=workspace_uuid)
+            workspace = Workspace.objects.get(id=workspace_uuid, user=self.request.user)
         except Workspace.DoesNotExist:
             return Response({"message": "Workspace not found."}, status=status.HTTP_404_NOT_FOUND)
         serializer = GenerateOutputSerializer(data=data)
@@ -80,6 +82,9 @@ class WorkspaceOutputView(APIView):
             serializer.validated_data['workspace'] = workspace
             try:
                 prompt = serializer.save()
+                if tags:
+                    prompt.tags = tags
+                    prompt.save()
                 for param, value in parameters.items():
                     llm_model, _ = Model.objects.get_or_create(name=prompt.workspace.model_key.provider)
                     parameter, _ = Parameter.objects.get_or_create(name=param)
@@ -97,11 +102,6 @@ class WorkspaceOutputView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class SearchWorkspaceAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        pass
 
 class WorkspacePromptListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -111,3 +111,46 @@ class WorkspacePromptListView(APIView):
         prompts = Prompt.objects.filter(workspace_id=uuid, workspace__user=self.request.user).order_by("timestamp")
         serializer = PromptHistoryListSerializer(prompts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class WorkspacePromptSearchView(generics.ListAPIView):
+    serializer_class = PromptHistoryListSerializer
+    permission_classes= [IsAuthenticated]
+
+    def get_queryset(self):
+        workspace_id = self.kwargs.get('workspace_id')
+        query = self.request.query_params.get('q', '')
+        queryset = Prompt.objects.filter(workspace=workspace_id, workspace__user=self.request.user)
+        if not queryset:
+            raise Http404
+
+        if query:
+            # Split the search query into individual words
+            search_terms = query.split()
+            
+            # Create a Q object to combine multiple conditions using OR
+            q_objects = Q()
+            prompt_tags = []
+            for prompt in queryset:
+                if prompt.tag_exists(query):
+                    prompt_tags.append(prompt)
+            # Search in title, system message, user message, and PromptOutput
+            for term in search_terms:
+                q_objects |= (
+                    Q(title__icontains=term) |
+                    Q(system_message__icontains=term) |
+                    Q(user_message__icontains=term) |
+                    Q(prompt_output__output__icontains=term)  # Search in PromptOutput table
+                )
+
+            # Search for tags that contain the search term
+
+
+            # Apply the combined Q object to filter the queryset
+            queryset = queryset.filter(q_objects)
+            search_result = []
+            for prompt in prompt_tags:
+                if not queryset.filter(id=prompt.id):
+                    search_result.append(prompt)
+            search_result = search_result + list(queryset)
+        return search_result
