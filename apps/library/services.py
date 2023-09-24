@@ -61,9 +61,7 @@ class OpenAIProvider(LLMService):
         )
         data = response.to_dict()
         ai_response = data["choices"][0]["text"]
-        self.prompt.sample_output = ai_response
-        self.prompt.save()
-        print("dta is", ai_response, type(ai_response))
+        PromptOutput.objects.create(prompt=self.prompt, output=ai_response)
         return
 
     def chat(self):
@@ -110,9 +108,7 @@ class OpenAIProvider(LLMService):
         )
         data = response.to_dict()
         ai_response = data["choices"][0]["message"]["content"]
-        self.prompt.sample_output = ai_response
-        self.prompt.save()
-        print("data is", ai_response, type(ai_response))
+        PromptOutput.objects.create(prompt=self.prompt, output=ai_response)
         return
 
 

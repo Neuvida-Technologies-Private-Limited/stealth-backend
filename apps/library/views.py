@@ -1,4 +1,3 @@
-# views.py
 from rest_framework import generics
 from .models import Prompt
 from .serializers import PromptListSerializer
@@ -20,11 +19,14 @@ class PublicPromptListView(generics.ListAPIView):
         return context
 
 class PrivatePromptListView(generics.ListAPIView):
-    queryset = Prompt.objects.filter(is_public=False)  # Filter prompts with is_public=True
     serializer_class = PromptListSerializer
     pagination_class = PageNumberPagination
     pagination_class.page_size = 10
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Filter prompts with is_public=False for the current user
+        return Prompt.objects.filter(is_public=False, workspace__user=self.request.user)
 
     def get_serializer_context(self):
         # Include any context data you want to pass to the serializer

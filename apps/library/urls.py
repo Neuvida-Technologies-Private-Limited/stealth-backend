@@ -6,11 +6,11 @@ urlpatterns = [
     url(
         r"^api/v1/prompt/get-prompt-list-public/$",
         PublicPromptListView.as_view(),
-        name="prompt-list",
+        name="prompt-list-public",
     ),
     url(
         r"^api/v1/prompt/get-prompt-list-private/$",
         PrivatePromptListView.as_view(),
-        name="prompt-list",
+        name="prompt-list-private",
     ),
 ]

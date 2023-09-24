@@ -36,7 +36,7 @@ class WorkspaceDetailAPIView(APIView):
 
     def get_object(self, workspace_id):
         try:
-            return Workspace.objects.get(pk=workspace_id)
+            return Workspace.objects.get(pk=workspace_id, user=self.request.user)
         except Workspace.DoesNotExist:
             raise Http404
 
@@ -108,6 +108,6 @@ class WorkspacePromptListView(APIView):
 
     def get(self, request, uuid):
         # Retrieve all prompts associated with the given workspace
-        prompts = Prompt.objects.filter(workspace_id=uuid).order_by("timestamp")
+        prompts = Prompt.objects.filter(workspace_id=uuid, workspace__user=self.request.user).order_by("timestamp")
         serializer = PromptHistoryListSerializer(prompts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

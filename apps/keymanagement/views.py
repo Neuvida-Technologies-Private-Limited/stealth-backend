@@ -33,7 +33,7 @@ class KeyManagementDetailAPIView(APIView):
 
     def get_object(self, uuid):
         try:
-            return KeyManagement.objects.get(uuid=uuid)
+            return KeyManagement.objects.get(uuid=uuid, user=self.request.user)
         except KeyManagement.DoesNotExist:
             raise Http404
 
