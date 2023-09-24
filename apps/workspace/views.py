@@ -108,7 +108,10 @@ class WorkspacePromptListView(APIView):
 
     def get(self, request, uuid):
         # Retrieve all prompts associated with the given workspace
-        prompts = Prompt.objects.filter(workspace_id=uuid, workspace__user=self.request.user).order_by("timestamp")
+        published = self.request.query_params.get('published', "False")
+        if published not in ["True", "False"]:
+            return Response("Invalid choice valid choices are True, False", status=status.HTTP_400_BAD_REQUEST)
+        prompts = Prompt.objects.filter(workspace_id=uuid, workspace__user=self.request.user, is_public=False, published=published).order_by("timestamp")
         serializer = PromptHistoryListSerializer(prompts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

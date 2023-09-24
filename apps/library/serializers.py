@@ -17,7 +17,7 @@ class PromptHistoryListSerializer(serializers.ModelSerializer):
     prompt_output = PromptOutputSerializer(many=True)
     class Meta:
         model = Prompt
-        fields = ["title", "is_public", "bookmarked", "prompt_type", "sample_output", "tags", "system_message", "user_message", "prompt_output"]
+        fields = ["title", "is_public", "bookmarked", "prompt_type", "sample_output", "tags", "system_message", "user_message", "prompt_output", "uuid"]
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
