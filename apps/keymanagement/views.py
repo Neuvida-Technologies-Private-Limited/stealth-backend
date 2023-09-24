@@ -58,6 +58,7 @@ class KeyManagementDetailAPIView(APIView):
         key.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class KeyManagementProvidersView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -46,7 +46,7 @@ USER_DEFINED_APPS = [
 ]
 INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + USER_DEFINED_APPS
 
-AUTH_USER_MODEL = 'access.User'
+AUTH_USER_MODEL = "access.User"
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
@@ -172,14 +172,13 @@ MEDIA_ROOT = os.path.join(ASSETS_MEDIA_DIR, "media")  # project/media
 
 # settings.py
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'email-smtp.ap-south-1.amazonaws.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "email-smtp.ap-south-1.amazonaws.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env.EMAIL_HOST_USER  # Your SES SMTP username.
 EMAIL_HOST_PASSWORD = env.EMAIL_HOST_PASSWORD  # Your SES SMTP password.
-EMAIL_HOST_USER_EMAIL = 'support@yamak.ai' # If don't need, comment out!!
-
+EMAIL_HOST_USER_EMAIL = "support@yamak.ai"  # If don't need, comment out!!
 
 
 ACCOUNT_EMAIL_REQUIRED = True  # Make sure it's not set to False

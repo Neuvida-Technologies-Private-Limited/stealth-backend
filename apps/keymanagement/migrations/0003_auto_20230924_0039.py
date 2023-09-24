@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('keymanagement', '0002_auto_20230923_2129'),
+        ("keymanagement", "0002_auto_20230923_2129"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='keymanagement',
-            name='provider',
-            field=models.CharField(choices=[('OpenAI', 'OPENAI'), ('Bard', 'BARD')], max_length=64),
+            model_name="keymanagement",
+            name="provider",
+            field=models.CharField(
+                choices=[("OpenAI", "OPENAI"), ("Bard", "BARD")], max_length=64
+            ),
         ),
     ]

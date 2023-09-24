@@ -1,13 +1,12 @@
 import requests
-import os
 import openai
 
 from typing import Union
 from apps.keymanagement.models import LLMProviders
 from apps.library.models import PromptTypeEnum, Prompt, PromptOutput
 
-class LLMService:
 
+class LLMService:
     def completion(self, prompt):
         raise NotImplementedError("Subclasses must implement the completion method")
 
@@ -32,14 +31,15 @@ class OpenAIProvider(LLMService):
         temperature = parameters.filter(parameter__name="temperature").first()
         temperature = float(temperature.value) if temperature else 1.0
 
-
         max_tokens = parameters.filter(parameter__name="max_tokens").first()
         max_tokens = int(max_tokens.value) if max_tokens else 50
-    
+
         top_p = parameters.filter(parameter__name="top_p").first()
         top_p = float(top_p.value) if top_p else 1.0
 
-        frequency_penalty = parameters.filter(parameter__name="frequency_penalty").first()
+        frequency_penalty = parameters.filter(
+            parameter__name="frequency_penalty"
+        ).first()
         frequency_penalty = float(frequency_penalty.value) if frequency_penalty else 0.0
 
         presence_penalty = parameters.filter(parameter__name="presence_penalty").first()
@@ -61,7 +61,9 @@ class OpenAIProvider(LLMService):
         )
         data = response.to_dict()
         ai_response = data["choices"][0]["text"]
-        PromptOutput.objects.create(prompt=self.prompt, output=ai_response)
+        PromptOutput.objects.create(
+            prompt=self.prompt, output=ai_response
+        )
         return
 
     def chat(self):
@@ -70,14 +72,15 @@ class OpenAIProvider(LLMService):
         temperature = parameters.filter(parameter__name="temperature").first()
         temperature = float(temperature.value) if temperature else 1.0
 
-
         max_tokens = parameters.filter(parameter__name="max_tokens").first()
         max_tokens = int(max_tokens.value) if max_tokens else 50
 
         top_p = parameters.filter(parameter__name="top_p").first()
         top_p = float(top_p.value) if top_p else 1.0
 
-        frequency_penalty = parameters.filter(parameter__name="frequency_penalty").first()
+        frequency_penalty = parameters.filter(
+            parameter__name="frequency_penalty"
+        ).first()
         frequency_penalty = float(frequency_penalty.value) if frequency_penalty else 0.0
 
         presence_penalty = parameters.filter(parameter__name="presence_penalty").first()
@@ -88,13 +91,13 @@ class OpenAIProvider(LLMService):
 
         messages = []
         messages.append({"role": "system", "content": self.prompt.system_message})
-        past_prompts = Prompt.objects.filter(workspace=self.prompt.workspace, prompt_type=PromptTypeEnum.CHAT.value).exclude(id=self.prompt.id)
-        print("past are", past_prompts)
+        past_prompts = Prompt.objects.filter(
+            workspace=self.prompt.workspace, prompt_type=PromptTypeEnum.CHAT.value
+        ).exclude(id=self.prompt.id)
         for prompt in past_prompts:
             messages.append({"role": "user", "content": prompt.user_message})
             messages.append({"role": "assistant", "content": prompt.sample_output})
         messages.append({"role": "user", "content": self.prompt.user_message})
-        print("messages are", messages)
         openai.api_key = self.api_key
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -108,7 +111,9 @@ class OpenAIProvider(LLMService):
         )
         data = response.to_dict()
         ai_response = data["choices"][0]["message"]["content"]
-        PromptOutput.objects.create(prompt=self.prompt, output=ai_response)
+        PromptOutput.objects.create(
+            prompt=self.prompt, output=ai_response
+        )
         return
 
 
@@ -180,6 +185,7 @@ class BardProvider(LLMService):
         response = requests.post(url, json=data, headers=headers)
         response_data = response.json()
         return response_data["choices"][0]["message"]["content"]
+
 
 class LLMServiceFactory:
     @staticmethod

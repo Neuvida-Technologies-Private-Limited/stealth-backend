@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import (LikeDislikePrompt, Model, Parameter, ParameterMapping,
-                     Prompt)
+from .models import LikeDislikePrompt, Model, Parameter, ParameterMapping, Prompt
 
 # Register your models here.
 admin.site.register(LikeDislikePrompt)

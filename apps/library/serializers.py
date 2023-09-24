@@ -5,20 +5,42 @@ from rest_framework import serializers
 class GenerateOutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prompt
-        fields = ["workspace", "title", "system_message", "user_message", "is_public", "bookmarked", "prompt_type"]  # You can specify the fields you want to include explicitly if needed
+        fields = [
+            "workspace",
+            "title",
+            "system_message",
+            "user_message",
+            "is_public",
+            "bookmarked",
+            "prompt_type",
+        ]  # You can specify the fields you want to include explicitly if needed
+
 
 class PromptOutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = PromptOutput
         fields = ["output"]
 
+
 class PromptHistoryListSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     prompt_output = PromptOutputSerializer(many=True)
+
     class Meta:
         model = Prompt
-        fields = ["title", "is_public", "bookmarked", "prompt_type", "sample_output", "tags", "system_message", "user_message", "prompt_output", "uuid"]
-    
+        fields = [
+            "title",
+            "is_public",
+            "bookmarked",
+            "prompt_type",
+            "sample_output",
+            "tags",
+            "system_message",
+            "user_message",
+            "prompt_output",
+            "uuid",
+        ]
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         prompt_output = data.pop("prompt_output")
@@ -28,6 +50,7 @@ class PromptHistoryListSerializer(serializers.ModelSerializer):
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
 
+
 class PromptListSerializer(serializers.ModelSerializer):
     likes_dislikes_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
@@ -35,7 +58,18 @@ class PromptListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Prompt
-        fields = ("title", "is_public", "bookmarked", "prompt_type", "user_message", "sample_output", "likes_dislikes_count", "liked_by_user", "tags", "uuid")
+        fields = (
+            "title",
+            "is_public",
+            "bookmarked",
+            "prompt_type",
+            "user_message",
+            "sample_output",
+            "likes_dislikes_count",
+            "liked_by_user",
+            "tags",
+            "uuid",
+        )
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
@@ -43,10 +77,10 @@ class PromptListSerializer(serializers.ModelSerializer):
     def get_likes_dislikes_count(self, obj):
         likes_count = obj.likes_dislikes.filter(liked=True).count()
         dislikes_count = obj.likes_dislikes.filter(liked=False).count()
-        return {'likes': likes_count, 'dislikes': dislikes_count}
+        return {"likes": likes_count, "dislikes": dislikes_count}
 
     def get_liked_by_user(self, obj):
-        user = self.context['user']  # Retrieve user from context
+        user = self.context["user"]  # Retrieve user from context
         prompt = obj  # The current prompt instance
 
         try:

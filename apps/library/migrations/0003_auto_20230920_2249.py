@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('library', '0002_auto_20230920_2152'),
+        ("library", "0002_auto_20230920_2152"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='prompt',
-            name='prompt_type',
-            field=models.CharField(choices=[('Chat', 'CHAT'), ('Completion', 'COMPLETION')], max_length=255),
+            model_name="prompt",
+            name="prompt_type",
+            field=models.CharField(
+                choices=[("Chat", "CHAT"), ("Completion", "COMPLETION")], max_length=255
+            ),
         ),
     ]

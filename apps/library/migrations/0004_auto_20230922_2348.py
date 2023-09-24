@@ -5,15 +5,14 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('library', '0003_auto_20230920_2249'),
+        ("library", "0003_auto_20230920_2249"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='prompt',
-            name='uuid',
+            model_name="prompt",
+            name="uuid",
             field=models.UUIDField(default=uuid.uuid4, editable=False, unique=False),
         )
     ]

@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('keymanagement', '0001_initial'),
+        ("keymanagement", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='keymanagement',
-            name='provider',
-            field=models.CharField(choices=[('OpenAI', 'OPENAI'), ('Bard', 'BARD')], default='OpenAI', max_length=64),
+            model_name="keymanagement",
+            name="provider",
+            field=models.CharField(
+                choices=[("OpenAI", "OPENAI"), ("Bard", "BARD")],
+                default="OpenAI",
+                max_length=64,
+            ),
         ),
         migrations.AlterField(
-            model_name='keymanagement',
-            name='title',
-            field=models.TextField(default=''),
+            model_name="keymanagement",
+            name="title",
+            field=models.TextField(default=""),
         ),
     ]

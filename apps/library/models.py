@@ -9,6 +9,7 @@ from apps.core.models import Base, Ownable
 from apps.workspace.models import Workspace
 from apps.keymanagement.models import LLMProviders
 
+
 class ParameterEnum(Enum):
     TEMPERATURE = "temperature"
     MAXIMUM_LENGTH = "maximum_length"
@@ -113,10 +114,13 @@ class ParameterMapping(Base):
 
     def __str__(self):
         return f"{self.parameter} - {self.model}"
-    
+
+
 class PromptOutput(Base):
-    prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE, null=True, related_name="prompt_output")
+    prompt = models.ForeignKey(
+        Prompt, on_delete=models.CASCADE, null=True, related_name="prompt_output"
+    )
     output = models.TextField()
+
     def __str__(self):
         return f"output - {self.prompt}"
- 

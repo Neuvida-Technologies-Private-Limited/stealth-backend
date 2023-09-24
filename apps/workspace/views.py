@@ -10,8 +10,12 @@ from django.db import transaction
 from apps.library.services import LLMServiceFactory
 from .models import Workspace
 from .serializers import WorkspaceSerializer
-from apps.library.serializers import GenerateOutputSerializer, PromptHistoryListSerializer
+from apps.library.serializers import (
+    GenerateOutputSerializer,
+    PromptHistoryListSerializer,
+)
 from apps.library.models import Model, Parameter, ParameterMapping, Prompt
+
 
 class WorkspaceAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -71,34 +75,46 @@ class WorkspaceOutputView(APIView):
     def post(self, request):
         data = request.data
         parameters = data.pop("parameters", {})
-        workspace_uuid = data.get('workspace', '')
+        workspace_uuid = data.get("workspace", "")
         tags = data.pop("tags", "")
         try:
             workspace = Workspace.objects.get(id=workspace_uuid, user=self.request.user)
         except Workspace.DoesNotExist:
-            return Response({"message": "Workspace not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "Workspace not found."}, status=status.HTTP_404_NOT_FOUND
+            )
         serializer = GenerateOutputSerializer(data=data)
         if serializer.is_valid():
-            serializer.validated_data['workspace'] = workspace
+            serializer.validated_data["workspace"] = workspace
             try:
                 prompt = serializer.save()
                 if tags:
                     prompt.tags = tags
                     prompt.save()
                 for param, value in parameters.items():
-                    llm_model, _ = Model.objects.get_or_create(name=prompt.workspace.model_key.provider)
+                    llm_model, _ = Model.objects.get_or_create(
+                        name=prompt.workspace.model_key.provider
+                    )
                     parameter, _ = Parameter.objects.get_or_create(name=param)
-                    ParameterMapping.objects.create(prompt=prompt, model=llm_model, parameter=parameter, value=value)
+                    ParameterMapping.objects.create(
+                        prompt=prompt, model=llm_model, parameter=parameter, value=value
+                    )
                 provider = LLMServiceFactory.create_llm_service(prompt)
                 # Call the OpenAIProvider service here
                 provider.run()
-                return Response({"message": prompt.prompt_output.last().output}, status=status.HTTP_201_CREATED)
+                return Response(
+                    {"message": prompt.prompt_output.last().output},
+                    status=status.HTTP_201_CREATED,
+                )
             except Exception as e:
                 # Handle exceptions raised by the service
                 # Rollback the database transaction
                 print("Exception is", e)
                 transaction.set_rollback(True)
-                return Response({"message": "Error generating prompt"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(
+                    {"message": "Error generating prompt"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -108,29 +124,39 @@ class WorkspacePromptListView(APIView):
 
     def get(self, request, uuid):
         # Retrieve all prompts associated with the given workspace
-        published = self.request.query_params.get('published', "False")
+        published = self.request.query_params.get("published", "False")
         if published not in ["True", "False"]:
-            return Response("Invalid choice valid choices are True, False", status=status.HTTP_400_BAD_REQUEST)
-        prompts = Prompt.objects.filter(workspace_id=uuid, workspace__user=self.request.user, is_public=False, published=published).order_by("timestamp")
+            return Response(
+                "Invalid choice valid choices are True, False",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        prompts = Prompt.objects.filter(
+            workspace_id=uuid,
+            workspace__user=self.request.user,
+            is_public=False,
+            published=published,
+        ).order_by("timestamp")
         serializer = PromptHistoryListSerializer(prompts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class WorkspacePromptSearchView(generics.ListAPIView):
     serializer_class = PromptHistoryListSerializer
-    permission_classes= [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        workspace_id = self.kwargs.get('workspace_id')
-        query = self.request.query_params.get('q', '')
-        queryset = Prompt.objects.filter(workspace=workspace_id, workspace__user=self.request.user)
+        workspace_id = self.kwargs.get("workspace_id")
+        query = self.request.query_params.get("q", "")
+        queryset = Prompt.objects.filter(
+            workspace=workspace_id, workspace__user=self.request.user
+        )
         if not queryset:
             raise Http404
 
         if query:
             # Split the search query into individual words
             search_terms = query.split()
-            
+
             # Create a Q object to combine multiple conditions using OR
             q_objects = Q()
             prompt_tags = []
@@ -140,14 +166,15 @@ class WorkspacePromptSearchView(generics.ListAPIView):
             # Search in title, system message, user message, and PromptOutput
             for term in search_terms:
                 q_objects |= (
-                    Q(title__icontains=term) |
-                    Q(system_message__icontains=term) |
-                    Q(user_message__icontains=term) |
-                    Q(prompt_output__output__icontains=term)  # Search in PromptOutput table
+                    Q(title__icontains=term)
+                    | Q(system_message__icontains=term)
+                    | Q(user_message__icontains=term)
+                    | Q(
+                        prompt_output__output__icontains=term
+                    )  # Search in PromptOutput table
                 )
 
             # Search for tags that contain the search term
-
 
             # Apply the combined Q object to filter the queryset
             queryset = queryset.filter(q_objects)

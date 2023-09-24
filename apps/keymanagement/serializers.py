@@ -4,12 +4,11 @@ from .models import KeyManagement
 
 
 class KeyManagementSerializer(serializers.ModelSerializer):
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
         # Exclude the 'user' field from the serialized data
-        data.pop('user')
-        data.pop('api_key')
+        data.pop("user")
+        data.pop("api_key")
         data.update({"user_uuid": instance.user.uuid})
         return data
 
