@@ -12,5 +12,8 @@ class User(AbstractUser):
     token = models.CharField(default="", max_length=64)
     reset_password_token = models.CharField(default="", max_length=64)
 
+    class Meta:
+        unique_together = ('id', 'uuid')
+
     def __str__(self):
         return self.username
