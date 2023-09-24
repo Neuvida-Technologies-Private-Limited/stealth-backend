@@ -16,12 +16,7 @@ services:
     image: mysql
     container_name: "yamak.mysql"
     environment:
-      - MYSQL_DATABASE=yamak
-      - MYSQL_USER=yamak_local
-      - MYSQL_ROOT_PASSWORD=Passwor@123
-      - MYSQL_PASSWORD=Passwor@123
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
+      - PYTHON_ENV_FILE=./env.py
     ports:
       - 3306:3306
     volumes:
@@ -42,8 +37,6 @@ services:
     volumes:
       - static:/static
     # command:  python manage.py runserver 0.0.0.0:8000 #gunicorn config.wsgi:application --bind 0.0.0.0:8000
-    env_file:
-      - ./env
     depends_on:
       - mysql
 
