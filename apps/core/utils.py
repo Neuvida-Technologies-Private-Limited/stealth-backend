@@ -39,7 +39,6 @@ class CustomJSONRenderer(JSONRenderer):
         if not status_code:
             res = renderer_context.get("response")
             status_code = res.status_code if res else None
-        print("data is", data, status_code)
         # Check if the 'error' key is present in the data
         if status_code and int(status_code) // 100 in [4, 5]:
             # Set the HTTP status code to the extracted status_code for error responses

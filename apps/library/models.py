@@ -121,6 +121,7 @@ class PromptOutput(Base):
         Prompt, on_delete=models.CASCADE, null=True, related_name="prompt_output"
     )
     output = models.TextField()
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
 
     def __str__(self):
         return f"output - {self.prompt}"

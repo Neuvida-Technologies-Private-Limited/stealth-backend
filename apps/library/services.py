@@ -4,7 +4,7 @@ import openai
 from typing import Union
 from apps.keymanagement.models import LLMProviders
 from apps.library.models import PromptTypeEnum, Prompt, PromptOutput
-
+from .constants import DefaultParametersValues
 
 class LLMService:
     def completion(self, prompt):
@@ -29,24 +29,24 @@ class OpenAIProvider(LLMService):
         parameters = self.prompt.parametermapping_set.all()
 
         temperature = parameters.filter(parameter__name="temperature").first()
-        temperature = float(temperature.value) if temperature else 1.0
+        temperature = float(temperature.value) if temperature else DefaultParametersValues.temperature
 
         max_tokens = parameters.filter(parameter__name="max_tokens").first()
-        max_tokens = int(max_tokens.value) if max_tokens else 50
+        max_tokens = int(max_tokens.value) if max_tokens else DefaultParametersValues.max_tokens
 
         top_p = parameters.filter(parameter__name="top_p").first()
-        top_p = float(top_p.value) if top_p else 1.0
+        top_p = float(top_p.value) if top_p else DefaultParametersValues.top_p
 
         frequency_penalty = parameters.filter(
             parameter__name="frequency_penalty"
         ).first()
-        frequency_penalty = float(frequency_penalty.value) if frequency_penalty else 0.0
+        frequency_penalty = float(frequency_penalty.value) if frequency_penalty else DefaultParametersValues.frequency_penalty
 
         presence_penalty = parameters.filter(parameter__name="presence_penalty").first()
-        presence_penalty = float(presence_penalty.value) if presence_penalty else 0.0
+        presence_penalty = float(presence_penalty.value) if presence_penalty else DefaultParametersValues.presence_penalty
 
         logit_bias = parameters.filter(parameter__name="logit_bias").first()
-        logit_bias = dict(logit_bias.value) if logit_bias else {"50256": -100}
+        logit_bias = dict(logit_bias.value) if logit_bias else DefaultParametersValues.logit_bias
 
         openai.api_key = self.api_key
         response = openai.Completion.create(
@@ -70,24 +70,24 @@ class OpenAIProvider(LLMService):
         parameters = self.prompt.parametermapping_set.all()
 
         temperature = parameters.filter(parameter__name="temperature").first()
-        temperature = float(temperature.value) if temperature else 1.0
+        temperature = float(temperature.value) if temperature else DefaultParametersValues.temperature
 
         max_tokens = parameters.filter(parameter__name="max_tokens").first()
-        max_tokens = int(max_tokens.value) if max_tokens else 50
+        max_tokens = int(max_tokens.value) if max_tokens else DefaultParametersValues.max_tokens
 
         top_p = parameters.filter(parameter__name="top_p").first()
-        top_p = float(top_p.value) if top_p else 1.0
+        top_p = float(top_p.value) if top_p else DefaultParametersValues.top_p
 
         frequency_penalty = parameters.filter(
             parameter__name="frequency_penalty"
         ).first()
-        frequency_penalty = float(frequency_penalty.value) if frequency_penalty else 0.0
+        frequency_penalty = float(frequency_penalty.value) if frequency_penalty else DefaultParametersValues.frequency_penalty
 
         presence_penalty = parameters.filter(parameter__name="presence_penalty").first()
-        presence_penalty = float(presence_penalty.value) if presence_penalty else 0.0
+        presence_penalty = float(presence_penalty.value) if presence_penalty else DefaultParametersValues.presence_penalty
 
         logit_bias = parameters.filter(parameter__name="logit_bias").first()
-        logit_bias = dict(logit_bias.value) if logit_bias else {"50256": -100}
+        logit_bias = dict(logit_bias.value) if logit_bias else DefaultParametersValues.logit_bias
 
         messages = []
         messages.append({"role": "system", "content": self.prompt.system_message})
@@ -191,7 +191,6 @@ class LLMServiceFactory:
     @staticmethod
     def create_llm_service(prompt) -> Union[OpenAIProvider, BardProvider]:
         provider_type = prompt.workspace.model_key.provider
-        print("provider type is", provider_type)
         if provider_type == LLMProviders.OPENAI.value:
             return OpenAIProvider(prompt)
         elif provider_type == LLMProviders.BARD.value:
