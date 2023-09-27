@@ -48,15 +48,7 @@ INSTALLED_APPS = BUILT_IN_APPS + THIRD_PARTY_APPS + USER_DEFINED_APPS
 
 AUTH_USER_MODEL = "access.User"
 
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": "YOUR_GOOGLE_CLIENT_ID",
-            "secret": "YOUR_GOOGLE_CLIENT_SECRET",
-            "key": "",
-        }
-    }
-}
+GOOGLE_OAUTH2_CLIENT_ID = env.GOOGLE_OAUTH2_CLIENT_ID
 
 
 SIMPLE_JWT = {

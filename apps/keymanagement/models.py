@@ -24,5 +24,13 @@ class KeyManagement(models.Model):
     user = models.ForeignKey(User, related_name="keys", on_delete=models.CASCADE)
     api_key = EncryptedTextField()
 
+    def mask_api_key(self):
+        if len(self.api_key) >= 4:
+            masked_part = '*' * (len(self.api_key) - 4)
+            return self.api_key[:4] + masked_part
+        else:
+            # Handle cases where the API key is shorter than 4 characters
+            return self.api_key
+
     def save(self, **kwargs) -> None:
         return super().save(**kwargs)

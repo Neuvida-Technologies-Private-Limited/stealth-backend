@@ -1,3 +1,5 @@
+import openai
+
 from django.http import Http404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -65,3 +67,28 @@ class KeyManagementProvidersView(APIView):
     def get(self, request):
         provider_values = [provider.value for provider in LLMProviders]
         return Response(data=provider_values, status=status.HTTP_200_OK)
+
+class TestKeyConnection(APIView):
+   permission_classes = [IsAuthenticated]
+
+   def post(self, request):
+        api_key = request.data.get("api_key", "")
+        provider = request.data.get("provider", "")
+        if not api_key:
+            return Response("key uuid is not valid", status=status.HTTP_400_BAD_REQUEST)
+
+        if not provider:
+            return Response("Please provide provider", status=status.HTTP_400_BAD_REQUEST)
+
+        if provider ==  LLMProviders.OPENAI.value:
+            try:
+                openai.api_key = api_key
+                openai.Completion.create(
+                    model="gpt-3.5-turbo-instruct",
+                    prompt="this is test message",
+                )
+            except Exception as e:
+                return Response("Invalid API key", status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response("Key is valid", status=status.HTTP_200_OK)
+        else:
+            return Response("This provider is not supported", status=status.HTTP_404_NOT_FOUND)

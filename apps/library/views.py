@@ -1,7 +1,7 @@
 from django.http import Http404
 from rest_framework import generics
 from .models import Prompt
-from .serializers import PromptListSerializer
+from .serializers import PromptListSerializer, PromptInfoSerializer
 from rest_framework.pagination import (
     PageNumberPagination,
 )  # Import the pagination class
@@ -79,3 +79,15 @@ class PublishPromptView(APIView):
         prompt.published = True
         prompt.save()
         return Response("Prompt published successfully", status=status.HTTP_201_CREATED)
+
+class PromptInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, prompt_uuid):
+        try:
+            prompt = Prompt.objects.get(uuid=prompt_uuid)
+        except:
+            raise Http404
+        context = {"user": self.request.user}
+        data = PromptInfoSerializer(instance=prompt, context=context).data
+        return Response(data, status=status.HTTP_200_OK)

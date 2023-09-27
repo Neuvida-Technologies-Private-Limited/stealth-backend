@@ -82,6 +82,10 @@ class Prompt(Base):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        if self.workspace:
+            self.workspace.save()
+        return super().save(*args, **kwargs)
 
 # this will tags to prompts
 register(Prompt)

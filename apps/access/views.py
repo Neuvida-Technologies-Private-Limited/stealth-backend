@@ -4,26 +4,46 @@ from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.http import Http404
 from django.urls import reverse
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-
 from .models import User
 from .serializers import UserSerializer
-from .utils import email_user
-
+from .utils import email_user, google_validate_id_token
+from .utils import user_get_or_create, user_record_login
 
 # Use TokenObtainPairView for token generation (login)
-class CustomTokenObtainPairView(TokenObtainPairView):
+class CustomTokenObtainPairView(APIView):
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
+        data = request.data
+        email = data.get("email", "")
+        username = data.get("username", "")
+        password = data.get("password", "")
+        user = User.objects.filter(email=email).first()
+        if not user:
+            user = User.objects.filter(username=username).first()
+        if not user:
+            return Response("Invalid creadentials", status=status.HTTP_401_UNAUTHORIZED)
+        if not user.check_password(password):
+            return Response("Invalid passwowrd", status=status.HTTP_401_UNAUTHORIZED)
+        user_record_login(user)
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
 
+        return Response(
+            {
+                "access_token": access_token,
+                "refresh_token": str(refresh)
+            },
+            status=status.HTTP_200_OK,
+        )
         # Customize the response format
         data = {
             "data": {
@@ -36,7 +56,16 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 
 # Use TokenRefreshView for token refresh
-custom_token_refresh_view = TokenRefreshView.as_view()
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+
+        # Customize the response format
+        data = {
+            "access_token": response.data["access"],
+        }
+
+        return Response(data)
 
 
 class CurrentUserAPIView(APIView):
@@ -213,3 +242,35 @@ class ResetPassword(APIView):
 def get_csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({"csrfToken": csrf_token})
+
+class UserInitApi(APIView):
+    class InputSerializer(serializers.Serializer):
+        email = serializers.EmailField()
+        first_name = serializers.CharField(required=False, default='')
+        last_name = serializers.CharField(required=False, default='')
+
+    def post(self, request, *args, **kwargs):
+        id_token = request.headers.get('id_token')
+        is_valid_token, message = google_validate_id_token(id_token=id_token)
+        # if not is_valid_token:
+        #     return Response(message, status=status.HTTP_401_UNAUTHORIZED)
+        
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # We use get-or-create logic here for the sake of the example.
+        # We don't have a sign-up flow.
+        user, _ = user_get_or_create(**serializer.validated_data)
+
+        # Generate tokens for the user (access token and refresh token)
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        return Response(
+            {
+                "message": "User registered successfully.",
+                "access_token": access_token,
+                "refresh_token": str(refresh)
+            },
+            status=status.HTTP_201_CREATED,
+        )

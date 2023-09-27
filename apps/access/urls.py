@@ -11,7 +11,7 @@ urlpatterns = [
     url(r"^api/v1/access/signup/$", views.SignupAPIView.as_view(), name="signup-view"),
     url(
         r"^api/v1/access/refresh/$",
-        views.custom_token_refresh_view,
+        views.CustomTokenRefreshView.as_view(),
         name="custom-token-refresh",
     ),
     url(
@@ -35,4 +35,5 @@ urlpatterns = [
         name="current-user",
     ),
     url(r"api/v1/access/csrf-token/", views.get_csrf_token, name="get_csrf_token"),
+    url(r"api/v1/access/google-sso/", views.UserInitApi.as_view(), name="sso-init"),
 ]
