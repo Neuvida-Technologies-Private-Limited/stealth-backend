@@ -9,11 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
 from django.utils import timezone
-
-# from rest_framework_jwt.settings import api_settings
-# from rest_framework_jwt.compat import set_cookie_with_token
-
-from .constants import GOOGLE_ID_TOKEN_INFO_URL
+from env import GOOGLE_ID_TOKEN_INFO_URL
 
 User = get_user_model()
 

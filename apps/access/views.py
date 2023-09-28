@@ -252,8 +252,8 @@ class UserInitApi(APIView):
     def post(self, request, *args, **kwargs):
         id_token = request.headers.get('id_token')
         is_valid_token, message = google_validate_id_token(id_token=id_token)
-        # if not is_valid_token:
-        #     return Response(message, status=status.HTTP_401_UNAUTHORIZED)
+        if not is_valid_token:
+            return Response(message, status=status.HTTP_401_UNAUTHORIZED)
         
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
