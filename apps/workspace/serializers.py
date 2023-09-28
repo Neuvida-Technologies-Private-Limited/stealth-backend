@@ -10,6 +10,8 @@ class WorkspaceSerializer(serializers.ModelSerializer):
         # Exclude the 'user' field from the serialized data
         data.pop("user")
         data.update({"user_uuid": instance.user.uuid})
+        data.update({"first_name": instance.user.first_name})
+        data.update({"last_name": instance.user.last_name})
         return data
 
     class Meta:
@@ -19,4 +21,6 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "title",
             "model_key",
             "user",
+            "last_modified",
+            "timestamp",
         ]  # List the fields you want to include

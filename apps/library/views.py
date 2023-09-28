@@ -1,7 +1,7 @@
 from django.http import Http404
 from rest_framework import generics
 from .models import Prompt
-from .serializers import PromptListSerializer
+from .serializers import PromptListSerializer, PromptSerializer
 from rest_framework.pagination import (
     PageNumberPagination,
 )  # Import the pagination class
@@ -11,6 +11,7 @@ from rest_framework.permissions import (
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from tagging.models import Tag
 
 
 class PublicPromptListView(generics.ListAPIView):
@@ -79,3 +80,52 @@ class PublishPromptView(APIView):
         prompt.published = True
         prompt.save()
         return Response("Prompt published successfully", status=status.HTTP_201_CREATED)
+
+class PromptDetailView(APIView):
+    def get(self, request, prompt_uuid):
+        try:
+            prompt = Prompt.objects.get(uuid=prompt_uuid)
+            serializer = PromptSerializer(prompt, context = {"user": request.user})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Prompt.DoesNotExist:
+            return Response({'message': 'Prompt not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def patch(self, request, prompt_uuid):
+        try:
+            prompt = Prompt.objects.get(uuid=prompt_uuid)
+            print(6454)
+            serializer = PromptSerializer(prompt,context = {"user": request.user}, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Prompt.DoesNotExist:
+            return Response({'message': 'Prompt not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, prompt_uuid):
+        try:
+            prompt = Prompt.objects.get(uuid=prompt_uuid)
+            prompt.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Prompt.DoesNotExist:
+            return Response({'message': 'Prompt not found'}, status=status.HTTP_404_NOT_FOUND)
+
+class PromptAddTagsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, prompt_uuid):
+        try:
+            prompt = Prompt.objects.get(uuid=prompt_uuid)
+        except:
+            raise Http404
+        tag_data = request.data.get("tags", [])
+        tags = Tag.objects.get_for_object(prompt)
+        tags_set = set()
+        for tag in tags:
+            tags_set.add(tag.name)
+
+        for tag in tag_data:
+            if tag not in tags_set:
+                Tag.objects.add_tag(prompt, tag)
+
+        return Response("Tags added", status=status.HTTP_201_CREATED)

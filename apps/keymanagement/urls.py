@@ -4,6 +4,7 @@ from .views import (
     KeyManagementAPIView,
     KeyManagementDetailAPIView,
     KeyManagementProvidersView,
+    TestKeyConnection,
 )
 
 urlpatterns = [
@@ -21,6 +22,11 @@ urlpatterns = [
         r"^api/v1/key/llm-providers/$",
         KeyManagementProvidersView.as_view(),
         name="keymanagement-create",
+    ),
+    url(
+        r"^api/v1/key/test-connection/$",
+        TestKeyConnection.as_view(),
+        name="keymanagement-detail",
     ),
     url(
         r"^api/v1/key/(?P<uuid>[0-9a-f-]+)/$",

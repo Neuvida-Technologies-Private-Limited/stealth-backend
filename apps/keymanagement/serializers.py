@@ -8,7 +8,7 @@ class KeyManagementSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         # Exclude the 'user' field from the serialized data
         data.pop("user")
-        data.pop("api_key")
+        data["api_key"] = instance.mask_api_key()
         data.update({"user_uuid": instance.user.uuid})
         return data
 
