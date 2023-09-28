@@ -89,25 +89,11 @@ class PromptListSerializer(serializers.ModelSerializer):
         except LikeDislikePrompt.DoesNotExist:
             return None  # If there's no like/dislike record
 
-class PromptInfoSerializer(serializers.ModelSerializer):
+
+class PromptSerializer(serializers.ModelSerializer):
     likes_dislikes_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Prompt
-        fields = (
-            "title",
-            "is_public",
-            "bookmarked",
-            "prompt_type",
-            "user_message",
-            "sample_output",
-            "likes_dislikes_count",
-            "liked_by_user",
-            "tags",
-            "uuid",
-        )
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
@@ -126,3 +112,20 @@ class PromptInfoSerializer(serializers.ModelSerializer):
             return like_dislike.liked
         except LikeDislikePrompt.DoesNotExist:
             return None  # If there's no like/dislike record
+
+    class Meta:
+        model = Prompt
+        fields = [
+            "title",
+            "system_message",
+            "user_message",
+            "sample_output",
+            "bookmarked",
+            "published",
+            "is_public",
+            "prompt_type",
+            "workspace",
+            "likes_dislikes_count",
+            "liked_by_user",
+            "tags",
+        ]
