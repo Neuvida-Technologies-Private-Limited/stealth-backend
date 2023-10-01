@@ -33,6 +33,10 @@ class CustomTokenObtainPairView(APIView):
             return Response("Invalid creadentials", status=status.HTTP_401_UNAUTHORIZED)
         if not user.check_password(password):
             return Response("Invalid passwowrd", status=status.HTTP_401_UNAUTHORIZED)
+        
+        if not user.is_active:
+            return Response("Please verify your account", status=status.HTTP_401_UNAUTHORIZED)
+
         user_record_login(user)
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
@@ -44,16 +48,6 @@ class CustomTokenObtainPairView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-        # Customize the response format
-        data = {
-            "data": {
-                "access_token": response.data["access"],
-                "refresh_token": response.data["refresh"],
-            }
-        }
-
-        return Response(data)
-
 
 # Use TokenRefreshView for token refresh
 class CustomTokenRefreshView(TokenRefreshView):
@@ -108,9 +102,9 @@ class SignupAPIView(APIView):
 
             # Send an email confirmation email to the user
             subject = "Welcome to Yamak"
-            message = "Thank you for registering on Your Site. Please click the link below to confirm your email address:\n\n"
+            message = "Thank you for registering on Our Site. Please click the link below to confirm your email address:\n\n"
             message += (
-                f"{settings.BASE_LOCAL_URL}{url}"  # Replace with your confirmation URL
+                f"{settings.BASE_URL}{url}"  # Replace with your confirmation URL
             )
             success_code = email_user(subject, message)
 
@@ -178,7 +172,7 @@ class ResetPasswordMail(APIView):
         subject = "Reset Password"
         message = "Please click the link below to reset your password:\n\n"
         message += (
-            f"{settings.BASE_LOCAL_URL}{url}"  # Replace with your confirmation URL
+            f"{settings.BASE_URL}{url}"  # Replace with your confirmation URL
         )
         success_code = email_user(subject, message)
         if success_code != 1:

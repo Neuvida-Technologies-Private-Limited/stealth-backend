@@ -4,6 +4,11 @@ from .views import PublicPromptListView, PrivatePromptListView, PublishPromptVie
 
 urlpatterns = [
     url(
+        r"^api/v1/prompt/$",
+        PromptDetailView.as_view(),
+        name="prompt-info-public",
+    ),
+    url(
         r"^api/v1/prompt/get-prompt-list-public/$",
         PublicPromptListView.as_view(),
         name="prompt-list-public",

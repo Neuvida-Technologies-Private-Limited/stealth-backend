@@ -79,6 +79,10 @@ class WorkspaceOutputView(APIView):
         tags = data.pop("tags", "")
         try:
             workspace = Workspace.objects.get(id=workspace_uuid, user=self.request.user)
+            if not workspace.model_key:
+                return Response(
+                    {"message": "Workspace key not found."}, status=status.HTTP_404_NOT_FOUND
+                )
         except Workspace.DoesNotExist:
             return Response(
                 {"message": "Workspace not found."}, status=status.HTTP_404_NOT_FOUND
