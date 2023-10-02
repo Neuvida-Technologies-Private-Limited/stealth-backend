@@ -1,6 +1,13 @@
 from django.conf.urls import url
 
-from .views import PublicPromptListView, PrivatePromptListView, PublishPromptView, PromptDetailView, PromptAddTagsView
+from .views import (
+    PublicPromptListView,
+    PrivatePromptListView,
+    PublishPromptView,
+    PromptDetailView,
+    PromptAddTagsView,
+    LibraryPromptSearchView,
+)
 
 urlpatterns = [
     url(
@@ -12,6 +19,11 @@ urlpatterns = [
         r"^api/v1/prompt/get-prompt-list-public/$",
         PublicPromptListView.as_view(),
         name="prompt-list-public",
+    ),
+    url(
+        r"^api/v1/prompt/search-prompt/$",
+        LibraryPromptSearchView.as_view(),
+        name="prompt-search-library",
     ),
     url(
         r"^api/v1/prompt/get-prompt-list-private/$",

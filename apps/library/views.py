@@ -10,6 +10,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
 )  # Import the IsAuthenticated permission
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
 from tagging.models import Tag
@@ -189,3 +190,61 @@ class PromptAddTagsView(APIView):
                 Tag.objects.add_tag(prompt, tag)
 
         return Response("Tags added", status=status.HTTP_201_CREATED)
+
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 10  # Adjust the page size as needed
+
+
+class LibraryPromptSearchView(generics.ListAPIView):
+    serializer_class = PromptListSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination  # Use your custom pagination class here
+
+    def get_serializer_context(self):
+        # Include any context data you want to pass to the serializer
+        context = super().get_serializer_context()
+        # For example, you can include the current user
+        context["user"] = self.request.user
+        return context
+
+    def get_queryset(self):
+        query = self.request.query_params.get("q", "")
+        queryset = Prompt.objects.filter(
+            Q(workspace__user=self.request.user) | Q(user=self.request.user),
+            is_public=False,
+            published=True,
+        ).order_by("-timestamp")
+        if not queryset:
+            raise Http404
+        search_result = []
+        if query:
+            # Split the search query into individual words
+            search_terms = query.split()
+
+            # Create a Q object to combine multiple conditions using OR
+            q_objects = Q()
+            prompt_tags = []
+            for prompt in queryset:
+                if prompt.tag_exists(query):
+                    prompt_tags.append(prompt)
+            # Search in title, system message, user message, and PromptOutput
+            for term in search_terms:
+                q_objects |= (
+                    Q(title__icontains=term)
+                    | Q(system_message__icontains=term)
+                    | Q(user_message__icontains=term)
+                    | Q(
+                        prompt_output__output__icontains=term
+                    )  # Search in PromptOutput table
+                )
+
+            # Search for tags that contain the search term
+
+            # Apply the combined Q object to filter the queryset
+            queryset = queryset.filter(q_objects)
+            for prompt in prompt_tags:
+                if not queryset.filter(id=prompt.id):
+                    search_result.append(prompt)
+            search_result = search_result + list(queryset)
+        return search_result

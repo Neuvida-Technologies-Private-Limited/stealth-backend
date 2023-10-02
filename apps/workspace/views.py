@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics
 from django.db import transaction
 from apps.library.services import LLMServiceFactory
@@ -144,10 +145,15 @@ class WorkspacePromptListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 10  # Adjust the page size as needed
+
+
 class WorkspacePromptSearchView(generics.ListAPIView):
     serializer_class = PromptHistoryListSerializer
     permission_classes = [IsAuthenticated]
-
+    pagination_class = CustomPageNumberPagination  # Use your custom pagination class here
+    search_result = []
     def get_queryset(self):
         workspace_id = self.kwargs.get("workspace_id")
         query = self.request.query_params.get("q", "")
@@ -182,7 +188,6 @@ class WorkspacePromptSearchView(generics.ListAPIView):
 
             # Apply the combined Q object to filter the queryset
             queryset = queryset.filter(q_objects)
-            search_result = []
             for prompt in prompt_tags:
                 if not queryset.filter(id=prompt.id):
                     search_result.append(prompt)
