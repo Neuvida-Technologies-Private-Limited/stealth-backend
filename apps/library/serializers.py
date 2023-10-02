@@ -6,6 +6,7 @@ class GenerateOutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prompt
         fields = [
+            "user",
             "workspace",
             "title",
             "system_message",
@@ -60,6 +61,7 @@ class PromptListSerializer(serializers.ModelSerializer):
         model = Prompt
         fields = (
             "title",
+            "published",
             "is_public",
             "bookmarked",
             "prompt_type",
@@ -113,6 +115,15 @@ class PromptSerializer(serializers.ModelSerializer):
         except LikeDislikePrompt.DoesNotExist:
             return None  # If there's no like/dislike record
 
+    def update(self, instance, validated_data):
+        liked = self.context.get("liked", None)
+        if liked != None:
+            user = self.context["user"]
+            liked_obj, _ = LikeDislikePrompt.objects.get_or_create(prompt=instance, user=user)
+            liked_obj.liked = liked
+            liked_obj.save()
+        return super().update(instance, validated_data)
+
     class Meta:
         model = Prompt
         fields = [
@@ -120,7 +131,7 @@ class PromptSerializer(serializers.ModelSerializer):
             "system_message",
             "user_message",
             "sample_output",
-            "bookmarked",
+            "favourite",
             "published",
             "is_public",
             "prompt_type",

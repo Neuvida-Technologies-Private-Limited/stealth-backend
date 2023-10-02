@@ -170,15 +170,12 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env.EMAIL_HOST_USER  # Your SES SMTP username.
 EMAIL_HOST_PASSWORD = env.EMAIL_HOST_PASSWORD  # Your SES SMTP password.
-EMAIL_HOST_USER_EMAIL = "support@yamak.ai"  # If don't need, comment out!!
+EMAIL_HOST_USER_EMAIL = env.EMAIL_HOST_USER_EMAIL 
 
 
 ACCOUNT_EMAIL_REQUIRED = True  # Make sure it's not set to False
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 CSRF_COOKIE_HTTPONLY = False
-
-
-BASE_LOCAL_URL = "http://127.0.0.1:8000"
 
 FERNET_KEYS = [env.FERNET_KEY]
 

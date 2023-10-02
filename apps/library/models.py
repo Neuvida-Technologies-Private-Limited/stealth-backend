@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from tagging.registry import register
 
+from apps.access.models import User
 from apps.core.models import Base, Ownable
 from apps.workspace.models import Workspace
 from apps.keymanagement.models import LLMProviders
@@ -63,7 +64,9 @@ class Prompt(Base):
         max_length=255,
         choices=[(choice.value, choice.name) for choice in PromptTypeEnum],
     )
-
+    # if a prompt is published then it will belong to a user instead of workspace
+    # so event if workspace is deleted it will be there in user's library using this relation
+    user = models.ForeignKey(User, blank=True, null=True, related_name="prompts", on_delete=models.CASCADE)
     workspace = models.ForeignKey(
         Workspace,  # ForeignKey to associate with a Workspace
         on_delete=models.SET_NULL,  # Set workspace to NULL when deleted
@@ -71,7 +74,7 @@ class Prompt(Base):
         blank=True,  # Allows for null values, indicating that it's not associated with a workspace
         null=True,
     )
-
+    favourite = models.BooleanField(default=False)
     def tag_exists(self, value):
         all_tags = self.tags.values_list("name", flat=True)
         for tag in all_tags:
