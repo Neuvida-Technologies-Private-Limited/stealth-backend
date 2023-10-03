@@ -153,7 +153,6 @@ class WorkspacePromptSearchView(generics.ListAPIView):
     serializer_class = PromptHistoryListSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = CustomPageNumberPagination  # Use your custom pagination class here
-    search_result = []
     def get_queryset(self):
         workspace_id = self.kwargs.get("workspace_id")
         query = self.request.query_params.get("q", "")
@@ -162,7 +161,7 @@ class WorkspacePromptSearchView(generics.ListAPIView):
         )
         if not queryset:
             raise Http404
-
+        search_result = []
         if query:
             # Split the search query into individual words
             search_terms = query.split()
