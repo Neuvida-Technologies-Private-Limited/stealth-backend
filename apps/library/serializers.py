@@ -71,6 +71,7 @@ class PromptListSerializer(serializers.ModelSerializer):
             "liked_by_user",
             "tags",
             "uuid",
+            "favourite",
         )
 
     def get_tags(self, obj):
