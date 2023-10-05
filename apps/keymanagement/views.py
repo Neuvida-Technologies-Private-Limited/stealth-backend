@@ -2,6 +2,8 @@ import openai
 
 from django.http import Http404
 from rest_framework import status
+from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,21 +11,23 @@ from rest_framework.views import APIView
 from .models import KeyManagement, LLMProviders
 from .serializers import KeyManagementSerializer
 
+class KeyPageNumberPagination(PageNumberPagination):
+    page_size = 10  # Adjust the page size as needed
 
-class KeyManagementAPIView(APIView):
+
+class KeyManagementAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = KeyManagementSerializer
+    pagination_class = KeyPageNumberPagination  # Enable pagination for GET requests
 
-    def get(self, request, format=None):
-        # Get all keys
-        keys = KeyManagement.objects.filter(user=request.user)
-        serializer = KeyManagementSerializer(keys, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        return KeyManagement.objects.filter(user=self.request.user).order_by("-timestamp")
 
-    def post(self, request, format=None):
-        # Create a new key
+    # Override the create method to handle POST requests
+    def create(self, request, *args, **kwargs):
         data = request.data
-        data.update({"user": request.user.id})
-        serializer = KeyManagementSerializer(data=request.data)
+        data.update({"user": self.request.user.id})
+        serializer = KeyManagementSerializer(data=data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

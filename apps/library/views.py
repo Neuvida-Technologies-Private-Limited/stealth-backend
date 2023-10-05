@@ -3,9 +3,6 @@ from django.db.models import Q
 from rest_framework import generics
 from .models import Prompt
 from .serializers import PromptListSerializer, PromptSerializer
-from rest_framework.pagination import (
-    PageNumberPagination,
-)  # Import the pagination class
 from rest_framework.permissions import (
     IsAuthenticated,
 )  # Import the IsAuthenticated permission

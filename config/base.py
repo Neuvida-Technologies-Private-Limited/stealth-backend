@@ -4,14 +4,14 @@ from datetime import timedelta
 import env
 
 # CONFIG_DIR points to config package (project/src/apps/config)
-CONFIG_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # BASE_DIR points to starting point of the projects's base directory path (<project_name>/(config, apps))
-BASE_DIR = os.path.abspath(os.path.join(CONFIG_DIR, ".."))
+# BASE_DIR = os.path.abspath(os.path.join(CONFIG_DIR, ".."))
 
 # ASSETS_MEDIA_DIR points to the top level directory (one directory up from BASE_DIR)
 # assets, media, database, and venv will be located in this directory
-ASSETS_MEDIA_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+ASSETS_MEDIA_DIR = BASE_DIR # os.path.abspath(os.path.join(BASE_DIR, ".."))
 
 # APPS_DIR points to the core package (project/src/apps).
 # All custom apps and newly created apps will be located in this directory.

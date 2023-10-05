@@ -17,23 +17,26 @@ from apps.library.serializers import (
 )
 from apps.library.models import Model, Parameter, ParameterMapping, Prompt
 
+class CustomWorkspacePagination(PageNumberPagination):
+    page_size = 10  # Set your custom page size here
 
-class WorkspaceAPIView(APIView):
+
+class WorkspaceAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = WorkspaceSerializer
+    pagination_class = CustomWorkspacePagination  # Enable pagination for GET requests
 
-    def get(self, request):
-        # Retrieve all workspaces
-        workspaces = Workspace.objects.filter(user=request.user)
-        serializer = WorkspaceSerializer(workspaces, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        # Customize the queryset as needed
+        return Workspace.objects.filter(user=self.request.user).order_by("-timestamp")
 
-    def post(self, request):
-        # Create a new workspace
+    # Override the create method to handle POST requests
+    def create(self, request, *args, **kwargs):
         data = request.data
         data.update({"user": request.user.id})
-        serializer = WorkspaceSerializer(data=data)
+        serializer = WorkspaceSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

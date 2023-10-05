@@ -6,7 +6,7 @@ from django.db import models
 from fernet_fields import EncryptedTextField
 
 from apps.access.models import User
-
+from apps.core.models import Base
 
 class LLMProviders(Enum):
     OPENAI = "OpenAI"
@@ -14,7 +14,7 @@ class LLMProviders(Enum):
     # Add more providers as needed
 
 
-class KeyManagement(models.Model):
+class KeyManagement(Base):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     provider = models.CharField(
         max_length=64,

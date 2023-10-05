@@ -14,4 +14,4 @@ class KeyManagementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KeyManagement
-        fields = ("uuid", "title", "user", "api_key", "description", "provider")
+        fields = ("uuid", "title", "user", "api_key", "description", "provider", "timestamp")
