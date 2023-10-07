@@ -57,7 +57,6 @@ class PrivatePromptListView(generics.ListAPIView):
             is_public=False,
             published=True,
         )
-
         # Apply additional filtering if 'favourite' is specified
         if favourite in ["true", "false"]:
             favourite = (favourite == "true")  # Convert to boolean
@@ -254,6 +253,9 @@ class LibraryPromptSearchView(generics.ListAPIView):
                     | Q(user_message__icontains=term)
                     | Q(
                         prompt_output__output__icontains=term
+                    )  # Search in PromptOutput table
+                    | Q(
+                        sample_output__icontains=term
                     )  # Search in PromptOutput table
                 )
 
