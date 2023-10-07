@@ -14,13 +14,24 @@ from tagging.models import Tag
 
 
 class PublicPromptListView(generics.ListAPIView):
-    queryset = Prompt.objects.filter(
-        is_public=True
-    )  # Filter prompts with is_public=True
     serializer_class = PromptListSerializer
     pagination_class = PageNumberPagination
     pagination_class.page_size = 10
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Filter prompts with is_public=False for the current user
+        favourite = self.request.GET.get("favourite")
+
+        # Define base queryset
+        prompt_qs = Prompt.objects.filter(is_public=True)
+
+        # Apply additional filtering if 'favourite' is specified
+        if favourite in ["true", "false"]:
+            favourite = (favourite == "true")  # Convert to boolean
+            prompt_qs = prompt_qs.filter(favourite=favourite)
+
+        return prompt_qs.order_by("-timestamp")
 
     def get_serializer_context(self):
         # Include any context data you want to pass to the serializer
@@ -38,12 +49,22 @@ class PrivatePromptListView(generics.ListAPIView):
 
     def get_queryset(self):
         # Filter prompts with is_public=False for the current user
+        favourite = self.request.GET.get("favourite")
+
+        # Define base queryset
         prompt_qs = Prompt.objects.filter(
             Q(workspace__user=self.request.user) | Q(user=self.request.user),
             is_public=False,
             published=True,
-        ).order_by("-timestamp")
-        return prompt_qs
+        )
+
+        # Apply additional filtering if 'favourite' is specified
+        if favourite in ["true", "false"]:
+            favourite = (favourite == "true")  # Convert to boolean
+            prompt_qs = prompt_qs.filter(favourite=favourite)
+
+        return prompt_qs.order_by("-timestamp")
+
 
     def get_serializer_context(self):
         # Include any context data you want to pass to the serializer

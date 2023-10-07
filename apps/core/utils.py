@@ -50,7 +50,7 @@ class CustomJSONRenderer(JSONRenderer):
             response_data = {
                 "data": "",
                 "error": error,
-                "status_code": int(status_code),
+                "status": int(status_code),
             }
         elif status_code and int(status_code) // 100 in [2, 3]:
             # Set the HTTP status code to the extracted status_code for success responses
@@ -58,7 +58,7 @@ class CustomJSONRenderer(JSONRenderer):
             response_data = {
                 "data": data.get("data", "") or data,
                 "error": "",
-                "status_code": int(status_code),
+                "status": int(status_code),
             }
 
         return super().render(response_data, accepted_media_type, renderer_context)
