@@ -110,8 +110,9 @@ class WorkspaceOutputView(APIView):
                 provider = LLMServiceFactory.create_llm_service(prompt)
                 # Call the OpenAIProvider service here
                 provider.run()
+                serializer = PromptHistoryListSerializer(prompt)
                 return Response(
-                    {"message": prompt.prompt_output.last().output},
+                    serializer.data,
                     status=status.HTTP_201_CREATED,
                 )
             except Exception as e:
