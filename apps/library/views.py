@@ -153,11 +153,12 @@ class PromptDetailView(APIView):
         try:
             prompt = Prompt.objects.get(uuid=prompt_uuid)
             context = {"user": request.user}
-            liked = request.data.get("liked", None)
-            if liked != None and type(liked) != bool:
+            liked = request.data.get("liked")
+            if "liked" in request.data and type(liked) not in [bool, str]:
                 return Response(
-                    "liked type should be Boolean", status=status.HTTP_400_BAD_REQUEST
+                    "liked data is invalid", status=status.HTTP_400_BAD_REQUEST
                 )
+
             favourite = request.data.get("favourite", None)
             if favourite != None and type(favourite) != bool:
                 return Response(
@@ -227,11 +228,20 @@ class LibraryPromptSearchView(generics.ListAPIView):
 
     def get_queryset(self):
         query = self.request.query_params.get("q", "")
+        favourite = self.request.GET.get("favourite")
+
         queryset = Prompt.objects.filter(
             Q(workspace__user=self.request.user) | Q(user=self.request.user),
             is_public=False,
             published=True,
-        ).order_by("-timestamp")
+        )
+
+        if favourite in ["true", "false"]:
+            favourite = (favourite == "true")  # Convert to boolean
+            queryset = queryset.filter(favourite=favourite)
+        
+        queryset = queryset.order_by("-timestamp")
+
         if not queryset:
             raise Http404
         search_result = []

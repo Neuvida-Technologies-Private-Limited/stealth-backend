@@ -118,8 +118,10 @@ class PromptSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         liked = self.context.get("liked", None)
-        if liked != None:
-            user = self.context["user"]
+        user = self.context["user"]
+        if liked == "delete":
+            LikeDislikePrompt.objects.filter(prompt=instance, user=user).delete()
+        elif liked != None:
             liked_obj, _ = LikeDislikePrompt.objects.get_or_create(prompt=instance, user=user)
             liked_obj.liked = liked
             liked_obj.save()
