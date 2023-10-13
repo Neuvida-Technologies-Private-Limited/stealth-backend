@@ -121,32 +121,11 @@ class PromptDetailView(APIView):
 
     def post(self, request):
         data = request.data
-        title = data.get("title", "")
-        user_message = data.get("user_message", "")
-        system_message = data.get("system_message", "")
-        sample_output = data.get("sample_output", "")
-        if not title:
-            return Response("title is required", status=status.HTTP_400_BAD_REQUEST)
-        if not user_message:
-            return Response("message is required", status=status.HTTP_400_BAD_REQUEST)
-        if not system_message:
-            return Response(
-                "system message is required", status=status.HTTP_400_BAD_REQUEST
-            )
-        obj_data = {
-            "user": request.user,
-            "title": title,
-            "user_message": user_message,
-            "published": True,
-            "is_public": data.get("is_public", False),
-            "system_message": system_message,
-            "sample_output": sample_output,
-        }
-        prompt = Prompt.objects.create(**obj_data)
-        tags = data.get("tags", "")
-        if tags:
-            prompt.tags = tags
-            prompt.save()
+        context = {"tags": data.get("tags", "")}
+        serializer = PromptSerializer(data=data, context=context)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
         return Response("Prompt created", status=status.HTTP_201_CREATED)
 
     def patch(self, request, prompt_uuid):

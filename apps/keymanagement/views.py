@@ -12,7 +12,7 @@ from .models import KeyManagement, LLMProviders
 from .serializers import KeyManagementSerializer
 
 class KeyPageNumberPagination(PageNumberPagination):
-    page_size = 10  # Adjust the page size as needed
+    page_size = 5  # Adjust the page size as needed
 
 
 class KeyManagementAPIView(generics.ListCreateAPIView):

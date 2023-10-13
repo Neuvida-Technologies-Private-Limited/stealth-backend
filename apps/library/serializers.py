@@ -97,6 +97,11 @@ class PromptSerializer(serializers.ModelSerializer):
     likes_dislikes_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    prompt_type = serializers.CharField(required=False)
+    user_message = serializers.CharField(max_length=1000)
+    system_message = serializers.CharField(max_length=1000)
+    sample_output = serializers.CharField(max_length=1000)
+    title = serializers.CharField(max_length=100)
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
@@ -115,6 +120,19 @@ class PromptSerializer(serializers.ModelSerializer):
             return like_dislike.liked
         except LikeDislikePrompt.DoesNotExist:
             return None  # If there's no like/dislike record
+
+    def create(self, validated_data):
+        tags =  self.context["tags"]
+        tags_list = tags.split(",")
+        if len(tags_list) > 5:
+            raise serializers.ValidationError({"tags": "Max 5 tags allowed"})
+        for tag in tags_list:
+            if len(tag) > 100:
+                raise serializers.ValidationError({"tags": "Tag max length can be 100 characters"})
+        prompt = super().create(validated_data)
+        prompt.tags = tags
+        prompt.save()
+        return prompt
 
     def update(self, instance, validated_data):
         liked = self.context.get("liked", None)

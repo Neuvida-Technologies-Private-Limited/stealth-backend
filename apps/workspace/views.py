@@ -81,6 +81,16 @@ class WorkspaceOutputView(APIView):
         parameters = data.pop("parameters", {})
         workspace_uuid = data.get("workspace", "")
         tags = data.pop("tags", "")
+        tags_list = tags.split(",")
+        error_message = {}
+        if len(tags_list) > 5:
+            error_message = {"tags": "Max 5 tags allowed"}
+        for tag in tags_list:
+            if len(tag) > 100:
+                error_message = {"tags":"Tag max length can be 100 characters"}
+        if error_message:
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
             workspace = Workspace.objects.get(id=workspace_uuid, user=self.request.user)
             if not workspace.model_key:
