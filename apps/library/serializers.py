@@ -123,6 +123,7 @@ class PromptSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         tags =  self.context["tags"]
+        user = self.context["user"]
         tags_list = tags.split(",")
         if len(tags_list) > 5:
             raise serializers.ValidationError({"tags": "Max 5 tags allowed"})
@@ -131,6 +132,7 @@ class PromptSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"tags": "Tag max length can be 100 characters"})
         prompt = super().create(validated_data)
         prompt.tags = tags
+        prompt.user = user
         prompt.save()
         return prompt
 
