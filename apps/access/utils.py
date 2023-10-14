@@ -34,14 +34,14 @@ class EmailBackend(ModelBackend):
         return None
 
 
-def google_validate_id_token(*, id_token: str) -> bool:
+def google_validate_id_token(*, access_token: str) -> bool:
     response = requests.get(
         GOOGLE_ID_TOKEN_INFO_URL,
-        params={'id_token': id_token}
+        params={'access_token': access_token}
     )
-    # print(response.json())
+    # print(response.json(), access_token)
     if not response.ok:
-        return False, 'id_token is invalid.'
+        return False, 'access_token is invalid.'
 
     audience = response.json()['aud']
 
