@@ -121,7 +121,7 @@ class PromptDetailView(APIView):
 
     def post(self, request):
         data = request.data
-        context = {"tags": data.get("tags", "")}
+        context = {"tags": data.get("tags", ""), "user": request.user}
         serializer = PromptSerializer(data=data, context=context)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
