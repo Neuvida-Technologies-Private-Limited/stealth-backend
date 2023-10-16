@@ -40,6 +40,7 @@ class PromptHistoryListSerializer(serializers.ModelSerializer):
             "user_message",
             "prompt_output",
             "uuid",
+            "published"
         ]
 
     def to_representation(self, instance):
@@ -102,6 +103,7 @@ class PromptSerializer(serializers.ModelSerializer):
     system_message = serializers.CharField(max_length=1000)
     sample_output = serializers.CharField(max_length=1000)
     title = serializers.CharField(max_length=100)
+    bookmarked = serializers.BooleanField(required=False)
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
@@ -162,4 +164,5 @@ class PromptSerializer(serializers.ModelSerializer):
             "likes_dislikes_count",
             "liked_by_user",
             "tags",
+            "bookmarked"
         ]

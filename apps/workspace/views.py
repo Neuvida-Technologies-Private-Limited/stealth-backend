@@ -138,29 +138,31 @@ class WorkspaceOutputView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class WorkspacePromptListView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, uuid):
-        # Retrieve all prompts associated with the given workspace
-        published = self.request.query_params.get("published", "False")
-        if published not in ["True", "False"]:
-            return Response(
-                "Invalid choice valid choices are True, False",
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        prompts = Prompt.objects.filter(
-            workspace_id=uuid,
-            workspace__user=self.request.user,
-            is_public=False,
-            published=published,
-        ).order_by("timestamp")
-        serializer = PromptHistoryListSerializer(prompts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class CustomPageNumberPagination(PageNumberPagination):
     page_size = 10  # Adjust the page size as needed
+
+class WorkspacePromptListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination  # Use your custom pagination class here
+    serializer_class = PromptHistoryListSerializer
+
+    def get_queryset(self):
+        # Retrieve all prompts associated with the given workspace
+        workspace_id = self.kwargs.get("uuid")
+        published = self.request.query_params.get("published")
+        if published and published.lower() not in ["true", "false"]:
+            return []
+        prompts = Prompt.objects.filter(
+            workspace_id=workspace_id,
+            workspace__user=self.request.user,
+        )
+        if published:
+            published = True if published.lower() == "true" else False
+            print(published, type(published), len(prompts))
+            prompts = prompts.filter(published=published)
+            print(published, type(published), len(prompts))
+        prompts = prompts.order_by("timestamp")
+        return prompts
 
 
 class WorkspacePromptSearchView(generics.ListAPIView):
