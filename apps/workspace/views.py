@@ -149,6 +149,7 @@ class WorkspacePromptListView(generics.ListAPIView):
     def get_queryset(self):
         # Retrieve all prompts associated with the given workspace
         workspace_id = self.kwargs.get("uuid")
+        prompt_type = self.request.query_params.get("prompt_type", None)
         published = self.request.query_params.get("published")
         if published and published.lower() not in ["true", "false"]:
             return []
@@ -161,7 +162,9 @@ class WorkspacePromptListView(generics.ListAPIView):
             print(published, type(published), len(prompts))
             prompts = prompts.filter(published=published)
             print(published, type(published), len(prompts))
-        prompts = prompts.order_by("timestamp")
+        if prompt_type:
+            prompts = prompts.filter(prompt_type__iexact=prompt_type)
+        prompts = prompts.order_by("-timestamp")
         return prompts
 
 
