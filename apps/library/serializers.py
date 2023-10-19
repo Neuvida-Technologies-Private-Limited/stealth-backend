@@ -50,7 +50,6 @@ class PromptHistoryListSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
-        # print(data)
         data = super().to_representation(instance)
         prompt_output = data.pop("prompt_output")
         data["prompt_output"] = [output_dict["output"] for output_dict in prompt_output]
