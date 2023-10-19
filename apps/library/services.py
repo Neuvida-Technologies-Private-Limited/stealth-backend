@@ -203,7 +203,7 @@ class LLMServiceFactory:
 
 def decode_user_message(prompt: Prompt) -> str:
     user_message = prompt.user_message
-    variables: List[PromptVariable] = prompt.promptvariable_set.all()
+    variables: List[PromptVariable] = prompt.variables.all()
     for variable in variables:
         key = variable.key
         value = variable.value

@@ -124,7 +124,7 @@ class ParameterMapping(Base):
 
 
 class PromptVariable(Base):
-    prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE, null=True)
+    prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE, null=True, related_name='variables')
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
     value = models.CharField(max_length=256)
     key = models.CharField(max_length=256)
