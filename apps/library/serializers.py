@@ -1,4 +1,4 @@
-from .models import Prompt, LikeDislikePrompt, PromptOutput
+from .models import Prompt, LikeDislikePrompt, PromptOutput, PromptVariable
 from rest_framework import serializers
 
 
@@ -22,11 +22,16 @@ class PromptOutputSerializer(serializers.ModelSerializer):
         model = PromptOutput
         fields = ["output"]
 
+class PromptVariablesSeriaizer(serializers.ModelSerializer):
+    class Meta:
+        model = PromptVariable
+        fields = ["key", "value"]
+
 
 class PromptHistoryListSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     prompt_output = PromptOutputSerializer(many=True)
-
+    variables = PromptVariablesSeriaizer(many=True)
     class Meta:
         model = Prompt
         fields = [
@@ -40,13 +45,17 @@ class PromptHistoryListSerializer(serializers.ModelSerializer):
             "user_message",
             "prompt_output",
             "uuid",
-            "published"
+            "published",
+            "variables"
         ]
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         prompt_output = data.pop("prompt_output")
         data["prompt_output"] = [output_dict["output"] for output_dict in prompt_output]
+        variables = data.pop("variables", [])
+        variables_dict = {item["key"]: item["value"] for item in variables}
+        data["variables"] = variables_dict
         return data
 
     def get_tags(self, obj):

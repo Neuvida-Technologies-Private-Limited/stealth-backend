@@ -1,9 +1,9 @@
 import requests
 import openai
 
-from typing import Union
+from typing import Union, List
 from apps.keymanagement.models import LLMProviders
-from apps.library.models import PromptTypeEnum, Prompt, PromptOutput
+from apps.library.models import PromptTypeEnum, Prompt, PromptOutput, PromptVariable
 from .constants import DefaultParametersValues
 
 class LLMService:
@@ -47,11 +47,11 @@ class OpenAIProvider(LLMService):
 
         logit_bias = parameters.filter(parameter__name="logit_bias").first()
         logit_bias = dict(logit_bias.value) if logit_bias else DefaultParametersValues.logit_bias
-
+        decoded_user_message = decode_user_message(self.prompt)
         openai.api_key = self.api_key
         response = openai.Completion.create(
             model="gpt-3.5-turbo-instruct",
-            prompt=self.prompt.user_message,
+            prompt=decoded_user_message,
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
@@ -94,10 +94,13 @@ class OpenAIProvider(LLMService):
         past_prompts = Prompt.objects.filter(
             workspace=self.prompt.workspace, prompt_type=PromptTypeEnum.CHAT.value
         ).exclude(id=self.prompt.id)
-        for prompt in past_prompts:
-            messages.append({"role": "user", "content": prompt.user_message})
+        # considering only last 10 prompts for chat, to avoid large payload and slow response
+        for prompt in list(past_prompts)[-10:]:
+            decoded_user_message = decode_user_message(prompt)
+            messages.append({"role": "user", "content": decoded_user_message})
             messages.append({"role": "assistant", "content": prompt.sample_output})
-        messages.append({"role": "user", "content": self.prompt.user_message})
+        decoded_user_message = decode_user_message(self.prompt)
+        messages.append({"role": "user", "content": decoded_user_message})
         openai.api_key = self.api_key
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -197,3 +200,12 @@ class LLMServiceFactory:
             return BardProvider(prompt)
         else:
             raise ValueError("Invalid LLM provider type")
+
+def decode_user_message(prompt: Prompt) -> str:
+    user_message = prompt.user_message
+    variables: List[PromptVariable] = prompt.variables.all()
+    for variable in variables:
+        key = variable.key
+        value = variable.value
+        user_message = user_message.replace("{{" + key + "}}", value)
+    return user_message

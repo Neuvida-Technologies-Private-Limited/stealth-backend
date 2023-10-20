@@ -15,7 +15,13 @@ from apps.library.serializers import (
     GenerateOutputSerializer,
     PromptHistoryListSerializer,
 )
-from apps.library.models import Model, Parameter, ParameterMapping, Prompt
+from apps.library.models import (
+    Model,
+    Parameter,
+    ParameterMapping,
+    Prompt,
+    PromptVariable
+)
 
 class CustomWorkspacePagination(PageNumberPagination):
     page_size = 10  # Set your custom page size here
@@ -79,6 +85,7 @@ class WorkspaceOutputView(APIView):
     def post(self, request):
         data = request.data
         parameters = data.pop("parameters", {})
+        variables = data.pop("variables", {})
         workspace_uuid = data.get("workspace", "")
         tags = data.pop("tags", "")
         tags_list = tags.split(",")
@@ -117,6 +124,9 @@ class WorkspaceOutputView(APIView):
                     ParameterMapping.objects.create(
                         prompt=prompt, model=llm_model, parameter=parameter, value=value
                     )
+                for variable_key, variable_value in variables.items():
+                    PromptVariable.objects.create(prompt=prompt, value=variable_value, key=variable_key)
+
                 provider = LLMServiceFactory.create_llm_service(prompt)
                 # Call the OpenAIProvider service here
                 provider.run()
