@@ -82,6 +82,7 @@ class PromptListSerializer(serializers.ModelSerializer):
             "tags",
             "uuid",
             "favourite",
+            "system_message"
         )
 
     def get_tags(self, obj):
