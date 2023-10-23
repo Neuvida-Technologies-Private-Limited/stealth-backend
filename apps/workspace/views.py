@@ -32,9 +32,28 @@ class WorkspaceAPIView(generics.ListCreateAPIView):
     serializer_class = WorkspaceSerializer
     pagination_class = CustomWorkspacePagination  # Enable pagination for GET requests
 
+    def get_page_size(self):
+        page_size = self.request.query_params.get('page_size', self.pagination_class.page_size)
+        # print(page_size, self.pagination_class.page_size)
+        return page_size
+
+    def list(self, request, *args, **kwargs):
+        # Dynamically set the page size based on the query parameter
+        self.pagination_class.page_size = self.get_page_size()
+        return super(WorkspaceAPIView, self).list(request, *args, **kwargs)
+
     def get_queryset(self):
+        q = self.request.GET.get("q")
+        q_objects = Q()
+        queryset = Workspace.objects.filter(user=self.request.user)
+        if q:
+            q_objects |= (
+                Q(title__icontains=q)
+            )
+            queryset = queryset.filter(q_objects)
+
+        return queryset.order_by("-timestamp")
         # Customize the queryset as needed
-        return Workspace.objects.filter(user=self.request.user).order_by("-timestamp")
 
     # Override the create method to handle POST requests
     def create(self, request, *args, **kwargs):
@@ -125,6 +144,10 @@ class WorkspaceOutputView(APIView):
                         prompt=prompt, model=llm_model, parameter=parameter, value=value
                     )
                 for variable_key, variable_value in variables.items():
+                    if len(variable_key) > 100 or len(variable_value) > 100:
+                        transaction.set_rollback(True)
+                        return Response(f"{variable_key[:5]} and {variable_value[:5]} should be less than 100 characters", status=status.HTTP_400_BAD_REQUEST)
+                    
                     PromptVariable.objects.create(prompt=prompt, value=variable_value, key=variable_key)
 
                 provider = LLMServiceFactory.create_llm_service(prompt)

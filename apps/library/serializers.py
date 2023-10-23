@@ -66,6 +66,7 @@ class PromptListSerializer(serializers.ModelSerializer):
     likes_dislikes_count = serializers.SerializerMethodField()
     liked_by_user = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    variables = PromptVariablesSeriaizer(many=True)
 
     class Meta:
         model = Prompt
@@ -82,8 +83,16 @@ class PromptListSerializer(serializers.ModelSerializer):
             "tags",
             "uuid",
             "favourite",
-            "system_message"
+            "system_message",
+            "variables",
         )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        variables = data.pop("variables", [])
+        variables_dict = {item["key"]: item["value"] for item in variables}
+        data["variables"] = variables_dict
+        return data
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
