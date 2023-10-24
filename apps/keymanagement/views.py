@@ -1,5 +1,6 @@
 import openai
 
+from django.db.models import Q
 from django.http import Http404
 from rest_framework import status
 from rest_framework import generics
@@ -20,8 +21,29 @@ class KeyManagementAPIView(generics.ListCreateAPIView):
     serializer_class = KeyManagementSerializer
     pagination_class = KeyPageNumberPagination  # Enable pagination for GET requests
 
+    def get_page_size(self):
+        page_size = self.request.query_params.get('page_size', self.pagination_class.page_size)
+        # print(page_size, self.pagination_class.page_size)
+        return page_size
+
+    def list(self, request, *args, **kwargs):
+        # Dynamically set the page size based on the query parameter
+        self.pagination_class.page_size = self.get_page_size()
+        return super(KeyManagementAPIView, self).list(request, *args, **kwargs)
+
+
     def get_queryset(self):
-        return KeyManagement.objects.filter(user=self.request.user).order_by("-timestamp")
+        q = self.request.GET.get("q")
+        q_objects = Q()
+        queryset = KeyManagement.objects.filter(user=self.request.user)
+        if q:
+            q_objects |= (
+                Q(provider__icontains=q)
+                | Q(title__icontains=q)
+            )
+            queryset = queryset.filter(q_objects)
+
+        return queryset.order_by("-timestamp")
 
     # Override the create method to handle POST requests
     def create(self, request, *args, **kwargs):

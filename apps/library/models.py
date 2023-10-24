@@ -75,12 +75,48 @@ class Prompt(Base):
         null=True,
     )
     favourite = models.BooleanField(default=False)
+
     def tag_exists(self, value):
         all_tags = self.tags.values_list("name", flat=True)
         for tag in all_tags:
             if value.lower() in tag.lower():
                 return True
         return False
+
+    def copy_published_prompt(self, user, is_public=False):
+            """
+            Create a copy of the current prompt with the specified user and other attributes.
+            """
+            copied_prompt = Prompt.objects.create(
+                title=self.title,
+                system_message=self.system_message,
+                user_message=self.user_message,
+                sample_output=self.sample_output,
+                bookmarked=self.bookmarked,
+                published=True,  # Set as published
+                is_public=is_public,  # Set as not public
+                prompt_type=self.prompt_type,
+                user=user,  # Set the user to the provided user
+                workspace=None,  # Set workspace to None
+                favourite=self.favourite,
+            )
+            
+            # copy variables
+            variables = self.variables.all()
+            for variable in variables:
+                PromptVariable.objects.create(
+                    promt = copied_prompt,
+                    value = variable.value,
+                    key = variable.key
+                )
+
+
+            # Copy tags (if you have a many-to-many relationship)
+            copied_prompt.tags = ",".join(self.tags.all().values_list("name", flat=True))
+
+            copied_prompt.save()
+
+            return copied_prompt
 
     def __str__(self):
         return self.title

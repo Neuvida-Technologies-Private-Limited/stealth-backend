@@ -24,7 +24,11 @@ class PublicPromptListView(generics.ListAPIView):
         favourite = self.request.GET.get("favourite")
 
         # Define base queryset
-        prompt_qs = Prompt.objects.filter(is_public=True)
+        prompt_qs = Prompt.objects.filter(
+            is_public=True,
+            published=True,
+            workspace=None,
+        )
 
         # Apply additional filtering if 'favourite' is specified
         if favourite in ["true", "false"]:
@@ -53,7 +57,8 @@ class PrivatePromptListView(generics.ListAPIView):
 
         # Define base queryset
         prompt_qs = Prompt.objects.filter(
-            Q(workspace__user=self.request.user) | Q(user=self.request.user),
+            workspace = None,
+            user=self.request.user,
             is_public=False,
             published=True,
         )
@@ -103,6 +108,8 @@ class PublishPromptView(APIView):
 
         prompt.published = True
         prompt.save()
+        # create new published prompt
+        prompt.copy_published_prompt(user=request.user, is_public=is_public)
         return Response("Prompt published successfully", status=status.HTTP_201_CREATED)
 
 
