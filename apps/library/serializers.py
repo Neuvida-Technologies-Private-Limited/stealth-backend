@@ -123,6 +123,7 @@ class PromptSerializer(serializers.ModelSerializer):
     sample_output = serializers.CharField(max_length=1000)
     title = serializers.CharField(max_length=100)
     bookmarked = serializers.BooleanField(required=False)
+    variables = PromptVariablesSeriaizer(many=True)
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))
@@ -141,6 +142,13 @@ class PromptSerializer(serializers.ModelSerializer):
             return like_dislike.liked
         except LikeDislikePrompt.DoesNotExist:
             return None  # If there's no like/dislike record
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        variables = data.pop("variables", [])
+        variables_dict = {item["key"]: item["value"] for item in variables}
+        data["variables"] = variables_dict
+        return data
 
     def create(self, validated_data):
         tags =  self.context["tags"]
@@ -183,5 +191,6 @@ class PromptSerializer(serializers.ModelSerializer):
             "likes_dislikes_count",
             "liked_by_user",
             "tags",
-            "bookmarked"
+            "bookmarked",
+            "variables",
         ]

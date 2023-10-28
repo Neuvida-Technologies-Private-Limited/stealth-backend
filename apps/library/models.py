@@ -105,7 +105,7 @@ class Prompt(Base):
             variables = self.variables.all()
             for variable in variables:
                 PromptVariable.objects.create(
-                    promt = copied_prompt,
+                    prompt = copied_prompt,
                     value = variable.value,
                     key = variable.key
                 )
