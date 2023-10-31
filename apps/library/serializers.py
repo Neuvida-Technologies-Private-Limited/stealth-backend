@@ -123,7 +123,7 @@ class PromptSerializer(serializers.ModelSerializer):
     sample_output = serializers.CharField(max_length=1000)
     title = serializers.CharField(max_length=100)
     bookmarked = serializers.BooleanField(required=False)
-    variables = PromptVariablesSeriaizer(many=True)
+    variables = PromptVariablesSeriaizer(many=True, required=False)
 
     def get_tags(self, obj):
         return list(obj.tags.all().values_list("name", flat=True))

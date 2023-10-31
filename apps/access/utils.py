@@ -14,9 +14,9 @@ from env import GOOGLE_ID_TOKEN_INFO_URL
 User = get_user_model()
 
 
-def email_user(subject, message):
+def email_user(email, subject, message):
     from_email = settings.EMAIL_HOST_USER_EMAIL  # Use the configured email address
-    recipient_list = ["abhaykesharwani40@gmail.com"]
+    recipient_list = [email]
 
     return send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 

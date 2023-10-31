@@ -106,7 +106,7 @@ class SignupAPIView(APIView):
             message += (
                 f"{settings.BASE_URL}{url}"  # Replace with your confirmation URL
             )
-            success_code = email_user(subject, message)
+            success_code = email_user(user.email, subject, message)
 
             if success_code != 1:
                 return Response(
@@ -174,7 +174,7 @@ class ResetPasswordMail(APIView):
         message += (
             f"{settings.BASE_URL}{url}"  # Replace with your confirmation URL
         )
-        success_code = email_user(subject, message)
+        success_code = email_user(user.email, subject, message)
         if success_code != 1:
             return Response(
                 {"message": "This email is not valid."},
